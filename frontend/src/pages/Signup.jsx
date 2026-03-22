@@ -25,7 +25,7 @@ function Signup() {
     <div className="min-h-screen bg-gradient-to-br from-offwite via-light_blue to-offwite flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
-          <div>
+          <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-dark_blue mb-2">Join Us</h1>
             <p className="text-gray-600">Create your account</p>
           </div>

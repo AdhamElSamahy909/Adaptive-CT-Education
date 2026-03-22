@@ -105,7 +105,7 @@ exports.verifyJWT = async (req, res, next) => {
           .status(400)
           .json({ message: "Authentication Failed. User not found" });
       }
-      req.user = { user };
+      req.user = user;
       return next();
     }
   } catch (error) {
@@ -114,11 +114,10 @@ exports.verifyJWT = async (req, res, next) => {
 };
 
 exports.checkSessionStatus = (req, res) => {
-  res
-    .status(200)
-    .json({
-      message: "Authenticated",
-      coldStartChallengeCompleted: req.user.user.coldStartChallengeCompleted,
-    });
+  res.status(200).json({
+    message: "Authenticated",
+    coldStartChallengeCompleted: req.user.coldStartChallengeCompleted,
+    id: req.user.id,
+  });
   return;
 };

@@ -5,12 +5,10 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      unique: true,
       required: [true, "please provide your first name"],
     },
     lastName: {
       type: String,
-      unique: true,
       required: [true, "please provide your last name"],
     },
     email: {
@@ -42,6 +40,19 @@ const userSchema = new mongoose.Schema(
     coldStartChallengeCompleted: {
       type: Boolean,
       default: false,
+    },
+    learningStyleBayesianNetwork: {
+      createdAt: Date,
+      lastUpdated: Date,
+      status: {
+        type: String,
+        enum: ["initialized", "in-progress", "completed"],
+        default: "initialized",
+      },
+      structure: Object,
+      parameters: Object,
+      evidence: Object,
+      inferences: [Object],
     },
   },
   { timestamps: true },

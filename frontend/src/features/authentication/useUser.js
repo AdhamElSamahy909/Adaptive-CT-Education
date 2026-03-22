@@ -21,5 +21,6 @@ export default function useUser() {
     coldStartChallengeFixed: data?.coldStartChallengeCompleted,
     isLoading,
     isAuthenticated: !error,
+    userId: data?.id,
   };
 }
