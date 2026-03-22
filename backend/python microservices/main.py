@@ -95,17 +95,3 @@ async def get_current_style(user_id: str):
 
     predicted = max(posterior, key=posterior.get)
     return StylePrediction(user_id=user_id, **posterior, predicted_style=predicted)
-
-@app.get("/prior", response_model=StylePrediction)
-def get_prior():
-    return StylePrediction(Visual=0.5, Vebral=0.5, predicted_style="Unknown")
-
-# @app.get("/")
-# async def root():
-#     logger.info("Hello World")
-#     return {"message": "Hello World"}
-
-# @app.get("/hello")
-# async def say_hello():
-#     logger.info("Hello World from /hello endpoint")
-#     return {"message": "Hello from hello endpoint!"}
