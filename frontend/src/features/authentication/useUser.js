@@ -19,6 +19,7 @@ export default function useUser() {
 
   return {
     coldStartChallengeFixed: data?.coldStartChallengeCompleted,
+    lastPref: data?.lastPreferredLearningStyle,
     isLoading,
     isAuthenticated: !error,
     userId: data?.id,

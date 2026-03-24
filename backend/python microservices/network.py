@@ -5,7 +5,7 @@ from serializable import model_to_doc, doc_to_cpds
 
 EDGES = [
     ("LearningStyle", "VisualScore"),
-    ("LearningStyle", "VerbalScore")
+    ("LearningStyle", "VerbalScore"),
     ("LearningStyle", "BehaviorSignal"),
 ]
 
@@ -14,10 +14,10 @@ def _attach_cpds(model: DiscreteBayesianNetwork, cpds: list[TabularCPD]) -> Disc
     assert model.check_model(), "CPDs are inconsistent with the network structure"
     return model
 
-def build_network():
-    model = DiscreteBayesianNetwork([('LearningStyle', 'VisualScore'),
-                                    ('LearningStyle', 'VerbalScore'),
-                                    ('LearningStyle', 'BehaviorSignal')])
+def _default_cpds():
+    # model = DiscreteBayesianNetwork([('LearningStyle', 'VisualScore'),
+    #                                 ('LearningStyle', 'VerbalScore'),
+    #                                 ('LearningStyle', 'BehaviorSignal')])
     
     cpd_style = TabularCPD(
         variable="LearningStyle",
@@ -60,8 +60,8 @@ def build_network():
         variable="BehaviorSignal",
         variable_card=2,
         values=[
-            [0.75, 0.25], # P(Visual) ?
-            [0.25, 0.75]
+            [0.75, 0.25], # P(VisualDominant | Visual), P(VisualDominant | Verbal) 
+            [0.25, 0.75] # P(VerbalDominant | Visual), P(VerbalDominant | Verbal)
         ],
         evidence=["LearningStyle"],
         evidence_card=[2],
@@ -71,9 +71,10 @@ def build_network():
         }
     )
 
-    model.add_cpds(cpd_style, cpd_visual, cpd_verbal, cpd_behavior)
-    assert model.check_model(), "Invalid Bayesian Network"
-    return model
+    # model.add_cpds(cpd_style, cpd_visual, cpd_verbal, cpd_behavior)
+    # assert model.check_model(), "Invalid Bayesian Network"
+    # return model
+    return [cpd_style, cpd_visual, cpd_verbal, cpd_behavior]
 
 def build_model() -> DiscreteBayesianNetwork:
     model = DiscreteBayesianNetwork(EDGES)

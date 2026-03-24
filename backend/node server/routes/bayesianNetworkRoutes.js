@@ -5,11 +5,14 @@ const router = express.Router();
 
 router.post("/learning-style/cold-start", bayesianNetworkController.coldStart);
 
-// router.get("/learning-style/infer", bayesianNetworkController.infer);
+router.get(
+  "/learning-style/infer/:userId",
+  bayesianNetworkController.inferLearningStyle,
+);
 
-// router.post(
-//   "/learning-style/update-structure",
-//   bayesianNetworkController.updateStructure,
-// );
+router.post(
+  "/learning-style/update/:userId",
+  bayesianNetworkController.updateLearningStyle,
+);
 
 module.exports = router;

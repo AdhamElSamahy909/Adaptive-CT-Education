@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 async function coldStartApi(userId, challenge1Answer, challenge2Answer) {
   try {
@@ -27,6 +28,8 @@ async function coldStartApi(userId, challenge1Answer, challenge2Answer) {
 }
 
 export default function useColdStart() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const {
     mutate: submitColdStart,
     isPending: isLoading,
@@ -36,6 +39,8 @@ export default function useColdStart() {
       coldStartApi(userId, challenge1Answer, challenge2Answer),
     onSuccess: () => {
       toast.success("Cold Start Challenge Completed!");
+      queryClient.invalidateQueries(["user"]);
+      navigate("/home");
     },
     onError: () => {
       toast.error("Cold Start Challenge Failed");

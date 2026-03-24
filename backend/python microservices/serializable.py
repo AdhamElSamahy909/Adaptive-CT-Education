@@ -1,5 +1,5 @@
 import numpy as np
-from pgmpy.factors.dicrete import TabularCPD
+from pgmpy.factors.discrete import TabularCPD
 
 def cpd_to_dict(cpd: TabularCPD) -> dict:
     return {

@@ -1,10 +1,17 @@
 const axiosInstance = require("../lib/axiosInstance");
+const User = require("../models/user");
+const { findByIdAndUpdate } = require("../models/user");
 
 exports.coldStart = async (req, res) => {
   try {
-    const { userId, challenge1Result, challenge2Result } = req.body;
-    const visualScore = challenge1Result === "A" ? "Pass" : "Fail";
-    const verbalScore = challenge2Result === "D" ? "Pass" : "Fail";
+    const { userId, challenge1Answer, challenge2Answer } = req.body;
+    console.log("Received cold start challenge results:", {
+      userId,
+      challenge1Answer,
+      challenge2Answer,
+    });
+    const visualScore = challenge1Answer === "A" ? "Pass" : "Fail";
+    const verbalScore = challenge2Answer === "D" ? "Pass" : "Fail";
 
     const response = await axiosInstance.post("/cold-start", {
       user_id: userId,
@@ -17,11 +24,77 @@ exports.coldStart = async (req, res) => {
       response.data,
     );
 
+    await User.findByIdAndUpdate(userId, {
+      coldStartChallengeCompleted: true,
+    });
+
     res.status(200).json(response.data);
   } catch (error) {
     res.status(500).json({
       message:
         "An error occurred while processing the cold start challenge results",
+    });
+  }
+};
+
+exports.inferLearningStyle = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user_id = userId;
+
+    const response = await axiosInstance.get(
+      `/infer-learning-style/${user_id}`,
+    );
+
+    console.log(
+      "Learning style inference completed successfully:",
+      response.data,
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while inferring the learning style",
+    });
+  }
+};
+
+exports.updateLearningStyle = async (req, res) => {
+  try {
+    const { userId, numOfBackClicks, currentMode } = req.params;
+    const user_id = userId;
+    let user = await User.findById(userId);
+    let backClicksPercentage = (numOfBackClicks / 9) * 100;
+    let behavior_signal;
+
+    if (user.lastPreferredLearningStyle === "Unknown") {
+      if (currentMode === "Visual") {
+        behavior_signal =
+          backClicksPercentage > 45 ? "VerbalDominant" : "VisualDominant";
+      } else {
+        behavior_signal =
+          backClicksPercentage > 45 ? "VisualDominant" : "VerbalDominant";
+      }
+    }
+
+    const response = await axiosInstance.post(`/update-learning-style`, {
+      user_id,
+      behavior_signal,
+    });
+
+    await user.updateOne({
+      lastPreferredLearningStyle:
+        behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
+    });
+
+    console.log("Learning style update completed successfully:", response.data);
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while updating the learning style",
     });
   }
 };

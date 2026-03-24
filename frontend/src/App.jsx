@@ -9,6 +9,12 @@ import Conditionals from "./pages/Conditionals";
 import Sequential from "./pages/Sequential";
 import ProtectedRoute from "./ui/protectedRoute";
 import AppLayout from "./ui/AppLayout";
+import LoopsLecture from "./features/lecture/LoopsLecture";
+import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
+import SequentialLecture from "./features/lecture/SequentialLecture";
+import LoopsExercise from "./features/exercise/LoopsExercise";
+import ConditionalExercise from "./features/exercise/ConditionalExercise";
+import SequentialExercise from "./features/exercise/SequentialExercise";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,8 +57,23 @@ function App() {
             <Route index element={<Navigate replace to="home" />} />
             <Route path="home" element={<Home />} />
             <Route path="loops" element={<Loops />} />
+            <Route path="loops/exercise" element={<LoopsExercise />} />
+            <Route path="loops/lecture" element={<LoopsLecture />} />
             <Route path="conditionals" element={<Conditionals />} />
+            <Route
+              path="conditionals/exercise"
+              element={<ConditionalExercise />}
+            />
+            <Route
+              path="conditionals/lecture"
+              element={<ConditionalsLecture />}
+            />
             <Route path="sequential" element={<Sequential />} />
+            <Route
+              path="sequential/exercise"
+              element={<SequentialExercise />}
+            />
+            <Route path="sequential/lecture" element={<SequentialLecture />} />
           </Route>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />

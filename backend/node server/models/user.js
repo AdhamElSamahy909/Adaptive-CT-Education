@@ -41,18 +41,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    learningStyleBayesianNetwork: {
-      createdAt: Date,
-      lastUpdated: Date,
-      status: {
-        type: String,
-        enum: ["initialized", "in-progress", "completed"],
-        default: "initialized",
-      },
-      structure: Object,
-      parameters: Object,
-      evidence: Object,
-      inferences: [Object],
+    lastPreferredLearningStyle: {
+      type: String,
+      enum: ["Visual", "Verbal", "Unknown"],
+      default: "Unknown",
     },
   },
   { timestamps: true },

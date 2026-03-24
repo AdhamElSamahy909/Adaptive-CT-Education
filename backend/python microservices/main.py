@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from network import build_network, infer_style, serialize_model, load_model, update_prior
+from network import build_model, infer_style, serialize_model, load_model, update_prior
 from models import ColdStartInput, BehaviorUpdate, StylePrediction
 from motor.motor_asyncio import AsyncIOMotorClient
 from serializable import dict_to_cpd
@@ -25,7 +25,7 @@ async def startup_db_client():
     print("Connected to MongoDB!")
 
 async def _get_user_doc(user_id: str) -> dict:
-    doc = await db[collection].find_one({"userId": user_id})
+    doc = await db[collection].find_one({"user_id": user_id})
     if not doc:
         raise HTTPException(
             status_code=404,
@@ -42,9 +42,9 @@ async def _save_model(user_id: str, model) -> None:
     )
 
 @app.post("/cold-start", response_model=StylePrediction)
-def cold_start(data: ColdStartInput):
+async def cold_start(data: ColdStartInput):
     print(f"Received data: {data}")
-    model = build_network()
+    model = build_model()
     evidence = {
         "VisualScore": data.visual_score,
         "VerbalScore": data.verbal_score
@@ -55,22 +55,18 @@ def cold_start(data: ColdStartInput):
         print(f"Inference result: {posterior}")
 
         model = update_prior(model, posterior)
-        _save_model(data.user_id, model)
+        await _save_model(data.user_id, model)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
     predicted = max(posterior, key=posterior.get)
-    return StylePrediction(**posterior, predicted_style=predicted)
+    return StylePrediction(user_id=data.user_id, **posterior, predicted_style=predicted)
 
-@app.post("/update", response_model=StylePrediction)
+@app.post("/update-learning-style", response_model=StylePrediction)
 async def update_from_behavior(data: BehaviorUpdate):
     doc = await _get_user_doc(data.user_id)
     model = load_model(doc)
     evidence = {"BehaviorSignal": data.behavior_signal}
-    if data.visual_score:
-        evidence["VisualScore"] = data.visual_score
-    else:
-        evidence["VerbalScore"] = data.verbal_score
 
     try:
         posterior = infer_style(model, evidence)
@@ -81,9 +77,9 @@ async def update_from_behavior(data: BehaviorUpdate):
         raise HTTPException(status_code=400, detail=str(e))
     
     predicted = max(posterior, key=posterior.get)
-    return StylePrediction(**posterior, predicted_style=predicted)
+    return StylePrediction(user_id=data.user_id, **posterior, predicted_style=predicted)
 
-@app.get("/style/{user_id}", response_model=StylePrediction)
+@app.get("/infer-learning-style/{user_id}", response_model=StylePrediction)
 async def get_current_style(user_id: str):
     doc = await _get_user_doc(user_id)
 
