@@ -11,9 +11,9 @@ function Home() {
             Learn programming fundamentals at your own pace with personalized
             lessons adapted to your learning style.
           </p>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300">
+          {/* <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300">
             Get Started
-          </button>
+          </button> */}
         </div>
       </section>
 
@@ -21,7 +21,7 @@ function Home() {
       <section className="px-4 py-16 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
-            Why Choose Our Platform?
+            Our Platform Offers
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -48,8 +48,8 @@ function Home() {
                 Multiple Learning Styles
               </h3>
               <p className="text-gray-700">
-                Learn through visual explanations, verbal instructions, or
-                hands-on exercises—whatever works best for you.
+                Learn through visual explanations, verbal instructions, and
+                hands-on exercises.
               </p>
             </div>
 
@@ -74,7 +74,7 @@ function Home() {
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
-            Topics You'll Master
+            Topics You'll Work On
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -122,7 +122,7 @@ function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="px-4 py-16 sm:px-6 lg:px-8 bg-gray-50">
+      {/* <section className="px-4 py-16 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
             How It Works
@@ -180,7 +180,7 @@ function Home() {
               </div>
             </div>
 
-            <div className="flex gap-6">
+             <div className="flex gap-6">
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white font-bold text-lg">
                   4
@@ -195,25 +195,10 @@ function Home() {
                   concepts.
                 </p>
               </div>
-            </div>
+            </div> 
           </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-blue-700">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Start Learning?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join students worldwide who are mastering computational thinking.
-          </p>
-          <button className="bg-white hover:bg-gray-100 text-blue-600 font-semibold py-3 px-8 rounded-lg transition duration-300">
-            Sign Up Free
-          </button>
-        </div>
-      </section>
+      </section> */}
     </div>
   );
 }
