@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-function LoopsLectureVisual({ numOfBackClicks, setNumOfBackClicks }) {
+function LoopsLectureVisual({
+  numOfBackClicks,
+  setNumOfBackClicks,
+  handleForwardClick,
+}) {
   const [currentPart, setCurrentPart] = useState(0);
 
   const parts = [
@@ -422,6 +426,7 @@ Common patterns         Counting, filtering, searching`}
   const handleNext = () => {
     if (currentPart < parts.length - 1) {
       setCurrentPart(currentPart + 1);
+      handleForwardClick();
       window.scrollTo(0, 0);
     }
   };

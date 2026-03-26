@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any
 
 class ColdStartInput(BaseModel):
     user_id: str
@@ -15,3 +15,17 @@ class StylePrediction(BaseModel):
     Visual: float
     Verbal: float
     predicted_style: str
+
+class TestResult(BaseModel):
+    test_case: int
+    passed: bool
+    output: Any = None
+    expected: Any = None
+    error: Optional[str] = None
+
+class ExecuteCodeResponse(BaseModel):
+    code: str
+    title: str
+    test_case: dict
+    timeout: int
+    test_case_num: int

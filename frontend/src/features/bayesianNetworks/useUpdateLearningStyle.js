@@ -1,7 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 
-async function updateLearningStyleApi(userId, numOfBackClicks, currentMode) {
+async function updateLearningStyleApi(
+  userId,
+  numOfBackClicks,
+  numOfForwardClicks,
+  currentMode,
+) {
   try {
     console.log("Updating learning style for user: ", userId);
     const { data } = await axiosInstance.post(
@@ -9,6 +14,7 @@ async function updateLearningStyleApi(userId, numOfBackClicks, currentMode) {
       {
         userId,
         numOfBackClicks,
+        numOfForwardClicks,
         currentMode,
       },
     );
@@ -21,15 +27,33 @@ async function updateLearningStyleApi(userId, numOfBackClicks, currentMode) {
   }
 }
 
-export default function useUpdateLearningStyle() {
+export default function useUpdateLearningStyle(refetchUser) {
   const {
     mutate: updateLearningStyle,
     data,
     isLoading,
     error,
   } = useMutation({
-    mutationFn: ({ userId, numOfBackClicks, currentMode }) =>
-      updateLearningStyleApi(userId, numOfBackClicks, currentMode),
+    mutationFn: ({
+      userId,
+      numOfBackClicks,
+      numOfForwardClicks,
+      currentMode,
+    }) =>
+      updateLearningStyleApi(
+        userId,
+        numOfBackClicks,
+        numOfForwardClicks,
+        currentMode,
+      ),
+    onSuccess: () => {
+      console.log("Refetching User Details");
+      refetchUser();
+      console.log("Refetched User Detail");
+    },
+    onError: (error) => {
+      console.error("Error updating learning style:", error);
+    },
   });
 
   return {

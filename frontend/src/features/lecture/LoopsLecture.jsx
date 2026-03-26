@@ -2,17 +2,18 @@ import useUser from "../authentication/useUser";
 import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
 import LoopsLectureVisual from "./LoopsLectureVisual";
 import LoopsLectureVerbal from "./LoopsLectureVerbal";
-import { useEffect } from "react";
 import { useState } from "react";
 import useUpdateLearningStyle from "../bayesianNetworks/useUpdateLearningStyle";
-import { useRef } from "react";
 
 function LoopsLecture() {
-  const { userId, lastPref } = useUser();
+  const { userId, lastPref, refetchUser } = useUser();
   const { visualScore, verbalScore } = useInferLearningStyle(userId);
-  const { updateLearningStyle } = useUpdateLearningStyle();
+  const { updateLearningStyle } = useUpdateLearningStyle(refetchUser);
   const [numOfBackClicks, setNumOfBackClicks] = useState(0);
-  const isFirstRender = useRef(true);
+  const [numOfForwardClicks, setNumOfForwardClicks] = useState(0);
+
+  console.log("User ID:", userId);
+  console.log("Last Preferred Learning Style:", lastPref);
 
   let currentMode;
 
@@ -26,24 +27,30 @@ function LoopsLecture() {
     currentMode = lastPref;
   }
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+  const handleForwardClick = () => {
+    const newForwardClicks = numOfForwardClicks + 1;
 
-    updateLearningStyle({
-      userId,
-      numOfBackClicks,
-      currentMode,
-    });
-  }, [numOfBackClicks, userId, updateLearningStyle, currentMode]);
+    if (newForwardClicks >= 4) {
+      setNumOfBackClicks(0);
+      setNumOfForwardClicks(0);
+
+      updateLearningStyle({
+        userId,
+        numOfBackClicks,
+        numOfForwardClicks: newForwardClicks,
+        currentMode,
+      });
+    } else {
+      setNumOfForwardClicks(newForwardClicks);
+    }
+  };
 
   if (currentMode === "Visual") {
     return (
       <LoopsLectureVisual
         numOfBackClicks={numOfBackClicks}
         setNumOfBackClicks={setNumOfBackClicks}
+        handleForwardClick={handleForwardClick}
       />
     );
   } else {
@@ -51,6 +58,7 @@ function LoopsLecture() {
       <LoopsLectureVerbal
         numOfBackClicks={numOfBackClicks}
         setNumOfBackClicks={setNumOfBackClicks}
+        handleForwardClick={handleForwardClick}
       />
     );
   }

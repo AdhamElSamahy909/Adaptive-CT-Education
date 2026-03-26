@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema(
       enum: ["Visual", "Verbal", "Unknown"],
       default: "Unknown",
     },
+    problemsSolved: [String],
   },
   { timestamps: true },
 );

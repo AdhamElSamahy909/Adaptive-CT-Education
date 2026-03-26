@@ -1,15 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from network import build_model, infer_style, serialize_model, load_model, update_prior
-from models import ColdStartInput, BehaviorUpdate, StylePrediction
+from models import ColdStartInput, BehaviorUpdate, StylePrediction, TestResult, ExecuteCodeResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from serializable import dict_to_cpd
 import os
 import logging
+import docker
+import json
+import time
+import asyncio
+import uuid
+from test_runner import create_test_runner
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
+
+docker_client = docker.DockerClient(base_url="unix://var/run/docker.sock")
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = "Adaptive_CT_Education"
@@ -18,6 +26,10 @@ client = AsyncIOMotorClient(MONGO_URI)
 db = client[DB_NAME]
 
 collection = "user_networks"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMP_DIR = os.path.join(BASE_DIR, "temp")
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 @app.on_event("startup")
 async def startup_db_client():
@@ -91,3 +103,138 @@ async def get_current_style(user_id: str):
 
     predicted = max(posterior, key=posterior.get)
     return StylePrediction(user_id=user_id, **posterior, predicted_style=predicted)
+
+@app.post("/execute-code", response_model=TestResult)
+async def run_test_case_in_docker(request: ExecuteCodeResponse):
+    code = request.code
+    title = request.title
+    test_case = request.test_case
+    timeout = request.timeout
+    test_case_num = request.test_case_num
+
+    execution_id = str(uuid.uuid4())
+    temp_file_path = os.path.join(TEMP_DIR, f"{execution_id}.py")
+    container = None
+
+    try:
+        test_runner_code = create_test_runner(code, title, test_case)
+
+        with open(temp_file_path, "w") as f:
+            f.write(test_runner_code)
+
+        print(f"Starting Docker container or execution {execution_id}")
+        test_start_time = time.time()
+
+        container = docker_client.containers.run(
+            image="python-sandbox",
+            command=f"python /code/{os.path.basename(temp_file_path)}",
+            volumes={
+                os.path.dirname(temp_file_path): {"bind": "/code", "mode": "ro"}
+            },
+            mem_limit="256m",
+            memswap_limit="256m",
+            cpu_period=100000,
+            cpu_quota=50000,
+            network_disabled=True,
+            read_only=True,
+            security_opt=["no-new-privileges:true"],
+            cap_drop=["ALL"],
+            detach=True,
+            remove=False
+        )
+
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(
+            None,
+            lambda: container.wait(timeout=timeout)
+        )
+
+        logs = container.logs(stdout=True, stderr=True).decode('utf-8')
+        execution_time = time.time() - test_start_time
+
+        print(f"Container {execution_id} completed in {execution_time:.2f}s")
+
+        if result["StatusCode"] == 0:
+            for line in logs.strip().split("\n"):
+                if line.startswith('{'):
+                    try:
+                        output_data = json.loads(line)
+                        return TestResult(
+                            test_case=test_case_num,
+                            passed=output_data.get("passed", False),
+                            output=output_data.get("output"),
+                            error=output_data.get("error"),
+                            execution_time=execution_time
+                        )
+                    
+                    except json.JSONDecodeError:
+                        pass
+            return TestResult(
+                test_case=test_case_num,
+                passed=True,
+                output=logs.strip(),
+                execution_time=execution_time
+            )
+        else:
+            return TestResult(
+                test_case=test_case_num,
+                passed=False,
+                error=f"Execution failed with status code {result['StatusCode']}:\n{logs}",
+                execution_time=execution_time
+            )
+    except Exception as e:
+        execution_time = time.time() - test_start_time if "test_start_time" in locals() else 0
+
+        error_msg = str(e)
+        if "timeout" in error_msg.lower():
+            error_msg = f"Timeout after {timeout} seconds."
+        return TestResult(
+            test_case=test_case_num,
+            passed=False,
+            error=f"Docker execution error: {str(e)}",
+            execution_time=0
+        )
+    finally:
+        if container:
+            try:
+                container.remove(force=True)
+                print(f"Removed container {execution_id}")
+            except:
+                pass
+        if os.path.exists(temp_file_path):
+            try:
+                os.unlink(temp_file_path)
+            except: pass
+
+# def create_test_runner(code: str, function_name: str, test_case: dict) -> str:
+#     return f'''
+# import json
+# import sys
+# import traceback 
+
+# {code}
+
+# try:
+#     solution = Solution()
+
+#     func = getattr(solution, '{function_name}')
+
+#     input_data = {json.dumps(test_case["input"])}
+#     expected = {json.dumps(test_case["output"])}
+
+#     result = func(*input_data)
+
+#     if isinstance(result, (list, tuple)):
+#         result = list(result)
+
+#     if result == expected:
+#         output = {{"passed": True, "output": result}}
+#     else:
+#         output = {{"passed": False, "output": result}}
+    
+#     print(json.dumps(output))
+# except Exception as e:
+#     error_msg = traceback.format_exc()
+#     output = {{"passed": False, "error": error_msg}}
+#     print(json.dumps(output))
+# '''

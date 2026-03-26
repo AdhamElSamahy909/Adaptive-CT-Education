@@ -1,6 +1,10 @@
 import { useState } from "react";
 
-function LoopsLectureVerbal({ numOfBackClicks, setNumOfBackClicks }) {
+function LoopsLectureVerbal({
+  numOfBackClicks,
+  setNumOfBackClicks,
+  handleForwardClick,
+}) {
   const [currentPart, setCurrentPart] = useState(0);
 
   const parts = [
@@ -787,6 +791,7 @@ function LoopsLectureVerbal({ numOfBackClicks, setNumOfBackClicks }) {
   const handleNext = () => {
     if (currentPart < parts.length - 1) {
       setCurrentPart(currentPart + 1);
+      handleForwardClick();
       window.scrollTo(0, 0);
     }
   };

@@ -1,6 +1,5 @@
 const axiosInstance = require("../lib/axiosInstance");
 const User = require("../models/user");
-const { findByIdAndUpdate } = require("../models/user");
 
 exports.coldStart = async (req, res) => {
   try {
@@ -62,21 +61,32 @@ exports.inferLearningStyle = async (req, res) => {
 
 exports.updateLearningStyle = async (req, res) => {
   try {
-    const { userId, numOfBackClicks, currentMode } = req.params;
+    const { userId, numOfBackClicks, numOfForwardClicks, currentMode } =
+      req.body;
+
+    console.log("Received learning style update data:", {
+      userId,
+      numOfBackClicks,
+      numOfForwardClicks,
+      currentMode,
+    });
     const user_id = userId;
     let user = await User.findById(userId);
-    let backClicksPercentage = (numOfBackClicks / 9) * 100;
+    let backClicksPercentage = (numOfBackClicks / numOfForwardClicks) * 100;
     let behavior_signal;
 
-    if (user.lastPreferredLearningStyle === "Unknown") {
-      if (currentMode === "Visual") {
-        behavior_signal =
-          backClicksPercentage > 45 ? "VerbalDominant" : "VisualDominant";
-      } else {
-        behavior_signal =
-          backClicksPercentage > 45 ? "VisualDominant" : "VerbalDominant";
-      }
+    if (currentMode === "Visual") {
+      behavior_signal =
+        backClicksPercentage > 45 ? "VerbalDominant" : "VisualDominant";
+    } else {
+      behavior_signal =
+        backClicksPercentage > 45 ? "VisualDominant" : "VerbalDominant";
     }
+
+    console.log("Data sent to python microservice for learning style update:", {
+      user_id,
+      behavior_signal,
+    });
 
     const response = await axiosInstance.post(`/update-learning-style`, {
       user_id,
@@ -89,6 +99,7 @@ exports.updateLearningStyle = async (req, res) => {
     });
 
     console.log("Learning style update completed successfully:", response.data);
+    console.log("Learning style update completed successfully");
 
     res.status(200).json(response.data);
   } catch (error) {

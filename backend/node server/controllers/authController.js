@@ -118,6 +118,7 @@ exports.checkSessionStatus = (req, res) => {
     message: "Authenticated",
     coldStartChallengeCompleted: req.user.coldStartChallengeCompleted,
     id: req.user.id,
+    lastPreferredLearningStyle: req.user.lastPreferredLearningStyle,
   });
   return;
 };
