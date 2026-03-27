@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 async function runCodeApi(code, problemId) {
   try {
+    console.log("Running code:", code);
     const { data } = await axiosInstance.post("/execute", {
       code,
       problemId,
@@ -28,8 +29,9 @@ export default function useRunCode() {
     status,
   } = useMutation({
     mutationFn: ({ code, problemId }) => runCodeApi(code, problemId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Code executed successfully");
+      console.log("Result of successfully running code: ", data);
     },
     onError: (error) => {
       toast.error(error.message || "Code execution failed");

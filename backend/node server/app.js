@@ -642,6 +642,7 @@ app.post("/api/v1/execute", async (req, res, next) => {
         test_case: testCase,
         timeout: 5,
         test_case_num: i + 1,
+        expected: testCase.output,
       });
 
       console.log(
@@ -655,7 +656,7 @@ app.post("/api/v1/execute", async (req, res, next) => {
         testCase: i + 1,
         passed: result.passed,
         output: result.output,
-        expected: testCase.expected,
+        expected: testCase.output,
         error: result.error,
         execution_time: result.execution_time,
       });

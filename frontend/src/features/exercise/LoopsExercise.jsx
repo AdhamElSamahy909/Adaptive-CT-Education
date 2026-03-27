@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Loader from "../../ui/Loader";
 import useRunCode from "./useRunCode";
 
@@ -9,6 +9,9 @@ const exercises = [
     description:
       "Calculate the sum of all even numbers from 2 up to a given number N (inclusive). Even numbers are those divisible by 2 without a remainder.",
     difficulty: "easy",
+    starterCode: `def sum_of_even_numbers(N: int) -> int:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "N = 10",
@@ -28,6 +31,9 @@ const exercises = [
     description:
       "For each number from 1 to N, calculate and print its square. Print each square on a new line.",
     difficulty: "easy",
+    starterCode: `def print_squares(N: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "N = 5",
@@ -47,6 +53,9 @@ const exercises = [
     description:
       "Count how many vowels (a, e, i, o, u) appear in a given word. Consider both lowercase and uppercase vowels.",
     difficulty: "easy",
+    starterCode: `def count_vowels(word: str) -> int:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: 'word = "Hello World"',
@@ -66,6 +75,9 @@ const exercises = [
     description:
       "Calculate the factorial of a positive integer N. Factorial of N (written as N!) is the product of all positive integers less than or equal to N. Use a while loop for this calculation.",
     difficulty: "easy",
+    starterCode: `def factorial(N: int) -> int:
+    # Write your code here using a while loop
+    pass`,
     testCases: [
       {
         input: "N = 5",
@@ -85,6 +97,9 @@ const exercises = [
     description:
       "Print a pyramid pattern where row number i contains the digit i repeated i times. The pyramid has height H.",
     difficulty: "easy",
+    starterCode: `def number_pyramid(H: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "H = 4",
@@ -105,6 +120,9 @@ const exercises = [
     description:
       "Calculate base raised to the power of exponent (base^exponent) using a loop. Do not use the ** operator or built-in power functions. Both base and exponent are positive integers.",
     difficulty: "easy",
+    starterCode: `def power(base: int, exponent: int) -> int:
+    # Write your code here without using ** operator
+    pass`,
     testCases: [
       {
         input: "base = 2, exponent = 5",
@@ -124,6 +142,9 @@ const exercises = [
     description:
       "Print all multiples of X that are less than N. Print each multiple on a new line.",
     difficulty: "easy",
+    starterCode: `def list_multiples(X: int, N: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "X = 3, N = 20",
@@ -143,6 +164,11 @@ const exercises = [
     description:
       "The secret number is 7. Keep asking the user to guess the number until they get it right. After each wrong guess, print 'Try again!'. When correct, print 'Correct!' and end the program.",
     difficulty: "easy",
+    starterCode: `def guessing_game(guesses: list) -> None:
+    # Write your code here
+    # Note: In actual implementation, you would use input()
+    # For testing, guesses list is provided
+    pass`,
     testCases: [
       {
         input: "3, 5, 7",
@@ -163,6 +189,9 @@ const exercises = [
     description:
       "Calculate the sum of the series: 1 + 1/2² + 1/3² + ... + 1/N². Print the result with 6 decimal places.",
     difficulty: "easy",
+    starterCode: `def sum_series(N: int) -> float:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "N = 3",
@@ -182,6 +211,9 @@ const exercises = [
     description:
       "For each character in a given string, print that character repeated N times on a new line.",
     difficulty: "easy",
+    starterCode: `def character_repeater(text: str, N: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: 'text = "Hi", N = 3',
@@ -203,6 +235,9 @@ const exercises = [
     description:
       "Print Floyd's Triangle with R rows. Floyd's Triangle is a right-angled triangular array of natural numbers, filled with consecutive numbers starting from 1.",
     difficulty: "medium",
+    starterCode: `def floyds_triangle(R: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "R = 4",
@@ -222,6 +257,9 @@ const exercises = [
     description:
       "Find and print all prime factors of a given number N. Print each factor on a new line.",
     difficulty: "medium",
+    starterCode: `def prime_factors(N: int) -> list:
+    # Return a list of prime factors
+    pass`,
     testCases: [
       {
         input: "N = 84",
@@ -241,6 +279,9 @@ const exercises = [
     description:
       "Print a hollow square of asterisks (*) with side length S. The border should be asterisks, and the inside should be spaces.",
     difficulty: "medium",
+    starterCode: `def hollow_square(S: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "S = 5",
@@ -260,6 +301,9 @@ const exercises = [
     description:
       "Find the Greatest Common Divisor (GCD) of two numbers using the Euclidean algorithm. The GCD is the largest number that divides both numbers without a remainder.",
     difficulty: "medium",
+    starterCode: `def gcd(a: int, b: int) -> int:
+    # Write your code here using Euclidean algorithm
+    pass`,
     testCases: [
       {
         input: "a = 48, b = 18",
@@ -281,6 +325,9 @@ const exercises = [
     description:
       "Given a word, build a new string that contains only the first occurrence of each character, preserving the original order.",
     difficulty: "medium",
+    starterCode: `def remove_duplicates(word: str) -> str:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: 'word = "hello"',
@@ -301,6 +348,9 @@ const exercises = [
     description:
       "The Collatz sequence starts with a number n. If n is even, divide by 2. If n is odd, multiply by 3 and add 1. Repeat until reaching 1. Count and print how many steps it takes to reach 1.",
     difficulty: "medium",
+    starterCode: `def collatz_steps(start: int) -> int:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "start = 6",
@@ -320,6 +370,9 @@ const exercises = [
     description:
       "Given a target number, then 10 numbers entered one by one. Determine if the target appears among them and count how many times it appears.",
     difficulty: "medium",
+    starterCode: `def number_search(target: int, numbers: list) -> tuple:
+    # Return (found: bool, count: int)
+    pass`,
     testCases: [
       {
         input: "target = 5\nNumbers: 3, 5, 2, 5, 7, 1, 5, 4, 6, 5",
@@ -339,6 +392,9 @@ const exercises = [
     description:
       "Print an N × N multiplication table in a grid format. Each number should be right-aligned in a field width of 4 spaces.",
     difficulty: "medium",
+    starterCode: `def multiplication_table(N: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "N = 4",
@@ -359,6 +415,9 @@ const exercises = [
     description:
       "Print an inverted pyramid of asterisks (*) with height H. The top row should have H asterisks, and each subsequent row should have one fewer asterisk.",
     difficulty: "medium",
+    starterCode: `def inverted_pyramid(H: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "H = 5",
@@ -379,6 +438,9 @@ const exercises = [
     description:
       "Check if a given word is a palindrome (reads the same forwards and backwards). Use a loop to compare characters from the beginning and end. Ignore case.",
     difficulty: "medium",
+    starterCode: `def is_palindrome(word: str) -> str:
+    # Return "Palindrome" or "Not Palindrome"
+    pass`,
     testCases: [
       {
         input: 'word = "racecar"',
@@ -398,6 +460,12 @@ const exercises = [
     description:
       "Simulate a dice game multiple times. Rules: Start with 0 points. Roll a die (values 1-6). If you roll a 1, the game ends with score 0. If you roll 2-6, add that value to your score and continue rolling. Simulate the specified number of games and calculate the average score across all games.",
     difficulty: "hard",
+    starterCode: `import random
+
+def dice_game_simulation(games: int) -> float:
+    # Write your code here
+    # Use random.randint(1, 6) to simulate dice roll
+    pass`,
     testCases: [
       {
         input: "games = 1000",
@@ -419,6 +487,9 @@ const exercises = [
     description:
       "Generate and print Pascal's Triangle with R rows. Each number is the sum of the two numbers directly above it.",
     difficulty: "hard",
+    starterCode: `def pascals_triangle(R: int) -> None:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "R = 5",
@@ -438,6 +509,9 @@ const exercises = [
     description:
       "Convert a Roman numeral string to an integer. Roman numerals: I=1, V=5, X=10, L=50, C=100, D=500, M=1000. When a smaller value appears before a larger value, subtract it (e.g., IV = 4). Otherwise, add the values.",
     difficulty: "hard",
+    starterCode: `def roman_to_int(roman: str) -> int:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: 'roman = "XIV"',
@@ -457,6 +531,9 @@ const exercises = [
     description:
       "Sort three numbers in ascending order using only conditionals and loops (no built-in sort functions or lists). Use a bubble-sort style approach with swap logic.",
     difficulty: "hard",
+    starterCode: `def sort_three(a: int, b: int, c: int) -> tuple:
+    # Return the three numbers in ascending order as a tuple
+    pass`,
     testCases: [
       {
         input: "a = 15, b = 7, c = 22",
@@ -476,6 +553,9 @@ const exercises = [
     description:
       "A 3×3 Tic-Tac-Toe board is represented by a single string of 9 characters (e.g., 'XOXOXOXOX'). Check if 'X' or 'O' has won by getting 3 in a row, column, or diagonal. Print the winner or 'No winner'.",
     difficulty: "hard",
+    starterCode: `def tic_tac_toe_winner(board: str) -> str:
+    # Return 'X', 'O', or 'No winner'
+    pass`,
     testCases: [
       {
         input: 'board = "XXXOOOXXX"',
@@ -495,6 +575,9 @@ const exercises = [
     description:
       "Find all prime numbers up to a given limit N using the Sieve of Eratosthenes algorithm. Print all primes in ascending order.",
     difficulty: "hard",
+    starterCode: `def sieve_of_eratosthenes(N: int) -> list:
+    # Return a list of all prime numbers up to N
+    pass`,
     testCases: [
       {
         input: "N = 30",
@@ -514,6 +597,9 @@ const exercises = [
     description:
       "Encrypt a message using the Caesar cipher. Shift each letter by a given shift value (1-25). Wrap around from z to a. Preserve case (uppercase stays uppercase, lowercase stays lowercase). Non-letters remain unchanged.",
     difficulty: "hard",
+    starterCode: `def caesar_cipher(message: str, shift: int) -> str:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: 'message = "Hello World", shift = 3',
@@ -534,6 +620,9 @@ const exercises = [
     description:
       "Find the digital root of a large integer by repeatedly summing its digits until a single-digit number is obtained.",
     difficulty: "hard",
+    starterCode: `def digital_root(number: int) -> int:
+    # Write your code here
+    pass`,
     testCases: [
       {
         input: "number = 987",
@@ -553,6 +642,10 @@ const exercises = [
     description:
       "Calculate a loan amortization schedule. Given loan amount, annual interest rate (%), and number of years, calculate the monthly payment. Then for each month, calculate interest paid, principal paid, and remaining balance. Print the first 12 months and the final total interest paid.",
     difficulty: "hard",
+    starterCode: `def loan_amortization(loan: float, rate: float, years: int) -> None:
+    # Write your code here
+    # Print the first 12 months and total interest paid
+    pass`,
     testCases: [
       {
         input: "loan = 10000, rate = 5, years = 3",
@@ -576,6 +669,10 @@ const exercises = [
     description:
       "Implement one generation of Conway's Game of Life on a 5×5 grid. Rules: A live cell (1) with 2 or 3 live neighbors survives. A dead cell (0) with exactly 3 live neighbors becomes alive. All other cells die or remain dead. Print the starting grid and the next generation grid.",
     difficulty: "hard",
+    starterCode: `def game_of_life(grid: list) -> list:
+    # grid is a 5x5 list of lists (0 for dead, 1 for alive)
+    # Return the next generation grid
+    pass`,
     testCases: [
       {
         input: "00000\n00100\n00100\n00100\n00000",
@@ -596,12 +693,25 @@ const exercises = [
 ];
 
 function LoopsExercise() {
-  const [code, setCode] = useState(
-    "# Write your Python code here\n# Example: Print numbers using a loop\nfor i in range(5):\n    print(i)",
-  );
-  const { runCode, isLoading, data, status } = useRunCode();
-
   const selectedExercise = exercises.find((ex) => ex.id === 24);
+  const [code, setCode] = useState(selectedExercise?.starterCode || "");
+  const { runCode, isLoading, data } = useRunCode();
+
+  useEffect(() => {
+    if (selectedExercise?.starterCode) {
+      setCode(selectedExercise.starterCode);
+    }
+  }, [selectedExercise?.id, setCode, selectedExercise]);
+
+  const getStatus = () => {
+    if (isLoading) return "loading";
+    if (data) {
+      return data.success ? "success" : "failed";
+    }
+    return "idle";
+  };
+
+  const status = getStatus();
 
   const handleRunCode = () => {
     runCode({ code, problemId: 24 });
@@ -712,31 +822,68 @@ function LoopsExercise() {
                 className={`px-6 py-4 text-offwite font-bold text-lg ${
                   status === "success"
                     ? "bg-green-600"
-                    : status === "error"
+                    : status === "failed"
                       ? "bg-red-600"
                       : "bg-dark_blue"
                 }`}
               >
                 {status === "success"
-                  ? "✓ Execution Successful"
-                  : status === "error"
-                    ? "✗ Execution Error"
+                  ? "✓ All Tests Passed"
+                  : status === "failed"
+                    ? "✗ Some Tests Failed"
                     : "Output"}
               </div>
 
               <div
                 className={`p-6 font-mono text-sm min-h-48 max-h-48 overflow-y-auto ${
-                  status === "error"
+                  status === "failed"
                     ? "bg-red-50 text-red-800"
                     : "bg-dark_blue text-offwite"
                 }`}
               >
                 {isLoading ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader size="md" />
+                  <div className="space-y-2">
+                    <div className="text-light_blue animate-pulse text-sm">
+                      $ Running code execution...
+                    </div>
+                    <div className="flex gap-1 items-center h-6">
+                      <span className="text-light_blue">▌</span>
+                      <span
+                        className="inline-block w-1 h-4 bg-light_blue"
+                        style={{
+                          animation: "pulse 0.6s ease-in-out infinite",
+                        }}
+                      ></span>
+                    </div>
                   </div>
-                ) : data ? (
-                  <pre className="whitespace-pre-wrap break-words">{data}</pre>
+                ) : data?.success ? (
+                  <pre className="whitespace-pre-wrap break-words text-green-600 font-bold">
+                    ✓ All tests passed!
+                  </pre>
+                ) : data && !data.success ? (
+                  <div className="space-y-4">
+                    {data.results?.map(
+                      (result, idx) =>
+                        !result.passed && (
+                          <div
+                            key={idx}
+                            className="border-b border-red-200 pb-3"
+                          >
+                            <p className="font-bold mb-2">
+                              Test {result.testCase}:
+                            </p>
+                            <p className="mb-1">Expected:</p>
+                            <pre className="bg-red-100 p-2 rounded mb-2 text-xs overflow-x-auto">
+                              {result.expected}
+                            </pre>
+                            <p className="mb-1">Got:</p>
+                            <pre className="bg-red-100 p-2 rounded text-xs overflow-y-auto max-h-24 whitespace-pre-wrap break-all">
+                              {result.error || "No output"}
+                            </pre>
+                          </div>
+                        ),
+                    )}
+                  </div>
                 ) : (
                   <p className="text-gray-400">
                     {status === "idle"

@@ -205,36 +205,3 @@ async def run_test_case_in_docker(request: ExecuteCodeResponse):
             try:
                 os.unlink(temp_file_path)
             except: pass
-
-# def create_test_runner(code: str, function_name: str, test_case: dict) -> str:
-#     return f'''
-# import json
-# import sys
-# import traceback 
-
-# {code}
-
-# try:
-#     solution = Solution()
-
-#     func = getattr(solution, '{function_name}')
-
-#     input_data = {json.dumps(test_case["input"])}
-#     expected = {json.dumps(test_case["output"])}
-
-#     result = func(*input_data)
-
-#     if isinstance(result, (list, tuple)):
-#         result = list(result)
-
-#     if result == expected:
-#         output = {{"passed": True, "output": result}}
-#     else:
-#         output = {{"passed": False, "output": result}}
-    
-#     print(json.dumps(output))
-# except Exception as e:
-#     error_msg = traceback.format_exc()
-#     output = {{"passed": False, "error": error_msg}}
-#     print(json.dumps(output))
-# '''
