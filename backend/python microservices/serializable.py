@@ -21,9 +21,10 @@ def dict_to_cpd(data: dict) -> TabularCPD:
         state_names = data["state_names"]
     )
 
-def model_to_doc(user_id: str, cpds: list[TabularCPD]) -> dict:
+def model_to_doc(user_id: str, cpds: list[TabularCPD], network_type: str) -> dict:
     return {
         "user_id": user_id,
+        "network_type": network_type, # "learning_style" or "difficulty"
         "cpds": [cpd_to_dict(c) for c in cpds]
     }
 

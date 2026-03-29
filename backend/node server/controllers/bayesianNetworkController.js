@@ -109,3 +109,25 @@ exports.updateLearningStyle = async (req, res) => {
     });
   }
 };
+
+exports.inferDifficulty = async (req, res) => {
+  console.log(
+    "Received request to infer difficulty level for user:",
+    req.params.userId,
+  );
+  try {
+    const { userId } = req.params;
+    const user_id = userId;
+
+    const response = await axiosInstance.get(`/infer-difficulty/${user_id}`);
+
+    console.log("Difficulty inference completed successfully:", response.data);
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while inferring the difficulty level",
+    });
+  }
+};

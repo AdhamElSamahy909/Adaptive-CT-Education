@@ -85,8 +85,11 @@ def load_model(doc: dict) -> DiscreteBayesianNetwork:
     cpds = doc_to_cpds(doc)
     return _attach_cpds(model, cpds)
 
-def serialize_model(user_id: str, model: DiscreteBayesianNetwork) -> dict:
-    return model_to_doc(user_id, model.cpds)
+def serialize_learning_style_model(user_id: str, model: DiscreteBayesianNetwork) -> dict:
+    return model_to_doc(user_id, model.cpds, network_type="learning_style")
+
+def serialize_difficulty_model(user_id: str, model: DiscreteBayesianNetwork) -> dict:
+    return model_to_doc(user_id, model.cpds, network_type="difficulty")
 
 def infer_style(model: DiscreteBayesianNetwork, evidence: dict) -> dict:
     infer = VariableElimination(model)
@@ -103,6 +106,61 @@ def update_prior(model: DiscreteBayesianNetwork, posterior: dict) -> DiscreteBay
         state_names={"LearningStyle": ["Visual", "Verbal"]}
     )
     model.remove_cpds(model.get_cpds("LearningStyle"))
+    model.add_cpds(new_prior)
+    assert model.check_model()
+    return model
+
+DIFFICULTY_EDGES = [("DifficultyLevel", "PerformanceSignal")]
+def _default_difficulty_cpds():
+    cpd_difficulty = TabularCPD(
+        variable="DifficultyLevel",
+        variable_card=3,
+        values=[[0.33], [0.33], [0.33]],
+        state_names={"DifficultyLevel": ["Easy", "Medium", "Hard"]}
+    )
+
+    cpd_performance = TabularCPD(
+        variable="PerformanceSignal",
+        variable_card=3,
+        values=[
+            [0.70, 0.20, 0.10],
+            [0.20, 0.60, 0.20],
+            [0.10, 0.20, 0.70]
+        ],
+        evidence=["DifficultyLevel"],
+        evidence_card=[3],
+        state_names={
+            "PerformanceSignal": ["EasySignal", "MediumSignal", "HardSignal"],
+            "DifficultyLevel": ["Easy", "Medium", "Hard"]
+        }
+    )
+
+    return [cpd_difficulty, cpd_performance]
+
+def build_difficulty_model() -> DiscreteBayesianNetwork:
+    model = DiscreteBayesianNetwork(DIFFICULTY_EDGES)
+    return _attach_cpds(model, _default_difficulty_cpds())
+
+def load_difficulty_model(doc: dict) -> DiscreteBayesianNetwork:
+    model = DiscreteBayesianNetwork(DIFFICULTY_EDGES)
+    cpds = doc_to_cpds(doc)
+    return _attach_cpds(model, cpds)
+
+def infer_difficulty_level(model: DiscreteBayesianNetwork, evidence: dict) -> dict:
+    infer = VariableElimination(model)
+    result = infer.query(variables=["DifficultyLevel"], evidence=evidence)
+    states = result.state_names["DifficultyLevel"]
+    values = result.values.tolist()
+    return dict(zip(states, values))
+
+def update_difficulty_prior(model: DiscreteBayesianNetwork, posterior: dict) -> DiscreteBayesianNetwork:
+    new_prior = TabularCPD(
+        variable="DifficultyLevel",
+        variable_card=3,
+        values=[[posterior["Easy"]], [posterior["Medium"]], [posterior["Hard"]]],
+        state_names={"DifficultyLevel": ["Easy", "Medium", "Hard"]}
+    )
+    model.remove_cpds(model.get_cpds("DifficultyLevel"))
     model.add_cpds(new_prior)
     assert model.check_model()
     return model

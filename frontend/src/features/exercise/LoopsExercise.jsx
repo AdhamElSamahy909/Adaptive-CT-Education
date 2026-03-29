@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import Loader from "../../ui/Loader";
 import useRunCode from "./useRunCode";
+import useUser from "../authentication/useUser";
+import useInferDifficulty from "../bayesianNetworks/useInferDifficulty";
+import { useRef } from "react";
 
 const exercises = [
   {
@@ -693,13 +696,34 @@ def dice_game_simulation(games: int) -> float:
 ];
 
 function LoopsExercise() {
-  const selectedExercise = exercises.find((ex) => ex.id === 24);
+  const { userId, solvedProblems } = useUser();
+  const {
+    easyScore,
+    mediumScore,
+    hardScore,
+    predictedDifficulty,
+    refetch: refetchDifficulty,
+  } = useInferDifficulty(userId);
+  const selectedExercise = exercises.find(
+    (ex) =>
+      ex.difficulty === predictedDifficulty?.toLowerCase() &&
+      !solvedProblems.includes(ex.id),
+  );
   const [code, setCode] = useState(selectedExercise?.starterCode || "");
-  const { runCode, isLoading, data } = useRunCode();
+  const { runCode, isLoading, data } = useRunCode(refetchDifficulty);
+  const time = useRef(null);
+
+  console.log("Selected Exercise: ", selectedExercise);
+  console.log(`User ${userId} - Solved Problems:`, solvedProblems);
+  console.log("Difficulty Scores:", { easyScore, mediumScore, hardScore });
 
   useEffect(() => {
     if (selectedExercise?.starterCode) {
       setCode(selectedExercise.starterCode);
+    }
+
+    if (!time.current) {
+      time.current = Date.now();
     }
   }, [selectedExercise?.id, setCode, selectedExercise]);
 
@@ -714,8 +738,28 @@ function LoopsExercise() {
   const status = getStatus();
 
   const handleRunCode = () => {
-    runCode({ code, problemId: 24 });
+    runCode(
+      {
+        code,
+        problemId: selectedExercise?.id,
+        userId,
+        timeTaken: (Date.now() - time.current) / 60000,
+        problemLevel: selectedExercise?.difficulty,
+      },
+      // {
+      //   onSuccess: (data) => {
+      //     if (data.success) {
+      //       time.current = (Date.now() - time.current) / 60000;
+      //       console.log("Execution Time (minutes): ", time.current);
+      //     }
+      //   },
+      // },
+    );
   };
+
+  // const handleClickNextExercise = () => {
+  //   // selectedExercise = exercise
+  // };
 
   const handleClearCode = () => {
     setCode("");
@@ -785,6 +829,13 @@ function LoopsExercise() {
           </div>
 
           <div className="space-y-4">
+            <button
+              disabled={status !== "success"}
+              className="w-full px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md disabled:hover:bg-gray-400 text-lg"
+            >
+              ▶ Next Exercise
+            </button>
+
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className="bg-dark_blue text-offwite px-6 py-4">
                 <h3 className="text-lg font-bold">Python Code Editor</h3>

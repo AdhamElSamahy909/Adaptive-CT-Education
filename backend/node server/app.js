@@ -4,6 +4,7 @@ const authRoutes = require("./routes/authRoutes");
 const bayesianNetworkRoutes = require("./routes/bayesianNetworkRoutes");
 const cors = require("cors");
 const axiosInstance = require("./lib/axiosInstance");
+const User = require("./models/user");
 
 const exercises = [
   {
@@ -616,7 +617,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/bayesian-networks", bayesianNetworkRoutes);
 
 app.post("/api/v1/execute", async (req, res, next) => {
-  const { code, problemId } = req.body;
+  const { code, problemId, userId, timeTaken, problemLevel } = req.body;
   const problem = exercises.find((exercise) => exercise.id === problemId);
   console.log(`Code for problem ${problemId}: `, code);
 
@@ -664,7 +665,47 @@ app.post("/api/v1/execute", async (req, res, next) => {
         break;
       }
     }
+
+    console.log("Current User: ", req.user);
+    let performanceSignal =
+      problemLevel === "easy"
+        ? "EasySignal"
+        : problemLevel === "medium"
+          ? "MediumSignal"
+          : "HardSignal";
+    switch (problemLevel) {
+      case "easy":
+        if (timeTaken < 3) performanceSignal = "MediumSignal";
+        console.log("Performance signal for easy problem: ", performanceSignal);
+        break;
+      case "medium":
+        if (timeTaken < 10) performanceSignal = "HardSignal";
+        console.log(
+          "Performance signal for medium problem: ",
+          performanceSignal,
+        );
+        break;
+      case "hard":
+        if (timeTaken > 45) performanceSignal = "MediumSignal";
+        console.log("Performance signal for hard problem: ", performanceSignal);
+        break;
+      default:
+        console.log("Unknown problem level: ", problemLevel);
+    }
+
+    const updateResponse = await axiosInstance.post("/update-difficulty", {
+      user_id: userId,
+      performance_signal: performanceSignal,
+    });
+
+    console.log("Difficulty update response: ", updateResponse.data);
+
     const allPassed = results.every((r) => r.passed);
+    if (allPassed)
+      await User.findByIdAndUpdate(userId, {
+        $push: { solvedProblems: problemId },
+      });
+
     res.json({
       success: allPassed,
       results,

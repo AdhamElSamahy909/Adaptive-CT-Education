@@ -15,4 +15,9 @@ router.post(
   bayesianNetworkController.updateLearningStyle,
 );
 
+router.get(
+  "/difficulty/infer/:userId",
+  bayesianNetworkController.inferDifficulty,
+);
+
 module.exports = router;

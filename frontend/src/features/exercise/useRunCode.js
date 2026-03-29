@@ -2,12 +2,15 @@ import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 import toast from "react-hot-toast";
 
-async function runCodeApi(code, problemId) {
+async function runCodeApi(code, problemId, userId, timeTaken, problemLevel) {
   try {
     console.log("Running code:", code);
     const { data } = await axiosInstance.post("/execute", {
       code,
       problemId,
+      userId,
+      timeTaken,
+      problemLevel,
     });
 
     return data;
@@ -20,7 +23,7 @@ async function runCodeApi(code, problemId) {
   }
 }
 
-export default function useRunCode() {
+export default function useRunCode(refetchDifficulty) {
   const {
     mutate: runCode,
     isPending: isLoading,
@@ -28,10 +31,12 @@ export default function useRunCode() {
     data,
     status,
   } = useMutation({
-    mutationFn: ({ code, problemId }) => runCodeApi(code, problemId),
+    mutationFn: ({ code, problemId, userId, timeTaken, problemLevel }) =>
+      runCodeApi(code, problemId, userId, timeTaken, problemLevel),
     onSuccess: (data) => {
       toast.success("Code executed successfully");
       console.log("Result of successfully running code: ", data);
+      refetchDifficulty();
     },
     onError: (error) => {
       toast.error(error.message || "Code execution failed");

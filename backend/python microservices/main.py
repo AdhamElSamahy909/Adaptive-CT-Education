@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from network import build_model, infer_style, serialize_model, load_model, update_prior
-from models import ColdStartInput, BehaviorUpdate, StylePrediction, TestResult, ExecuteCodeResponse
+from network import build_model, infer_style, load_model, update_prior, build_difficulty_model, load_difficulty_model, infer_difficulty_level, update_difficulty_prior, model_to_doc
+from models import ColdStartInput, BehaviorUpdate, StylePrediction, TestResult, ExecuteCodeResponse, DifficultyPrediction, DifficultyUpdate, DifficultyInitialize
 from motor.motor_asyncio import AsyncIOMotorClient
 from serializable import dict_to_cpd
 import os
@@ -11,6 +11,8 @@ import time
 import asyncio
 import uuid
 from test_runner import create_test_runner
+import traceback
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +27,10 @@ DB_NAME = "Adaptive_CT_Education"
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[DB_NAME]
 
-collection = "user_networks"
+# collection = "user_networks"
+
+LEARNING_STYLE_COLLECTION = "user_learning_style_networks"
+DIFFICULTY_COLLECTION     = "user_difficulty_networks"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
@@ -36,7 +41,7 @@ async def startup_db_client():
     await client.admin.command('ping')
     print("Connected to MongoDB!")
 
-async def _get_user_doc(user_id: str) -> dict:
+async def _get_user_doc(user_id: str, collection: str) -> dict:
     doc = await db[collection].find_one({"user_id": user_id})
     if not doc:
         raise HTTPException(
@@ -45,8 +50,9 @@ async def _get_user_doc(user_id: str) -> dict:
         )
     return doc
 
-async def _save_model(user_id: str, model) -> None:
-    doc = serialize_model(user_id, model)
+async def _save_model(user_id: str, model, collection: str) -> None:
+    network_type = ("learning_style" if collection == LEARNING_STYLE_COLLECTION else "difficulty")
+    doc = model_to_doc(user_id, model.cpds, network_type=network_type)
     await db[collection].update_one(
         {"user_id": user_id},
         {"$set": doc},
@@ -67,7 +73,7 @@ async def cold_start(data: ColdStartInput):
         print(f"Inference result: {posterior}")
 
         model = update_prior(model, posterior)
-        await _save_model(data.user_id, model)
+        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -76,7 +82,7 @@ async def cold_start(data: ColdStartInput):
 
 @app.post("/update-learning-style", response_model=StylePrediction)
 async def update_from_behavior(data: BehaviorUpdate):
-    doc = await _get_user_doc(data.user_id)
+    doc = await _get_user_doc(data.user_id, LEARNING_STYLE_COLLECTION)
     model = load_model(doc)
     evidence = {"BehaviorSignal": data.behavior_signal}
 
@@ -84,7 +90,7 @@ async def update_from_behavior(data: BehaviorUpdate):
         posterior = infer_style(model, evidence)
 
         model = update_prior(model, posterior)
-        await _save_model(data.user_id, model)
+        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -93,7 +99,7 @@ async def update_from_behavior(data: BehaviorUpdate):
 
 @app.get("/infer-learning-style/{user_id}", response_model=StylePrediction)
 async def get_current_style(user_id: str):
-    doc = await _get_user_doc(user_id)
+    doc = await _get_user_doc(user_id, LEARNING_STYLE_COLLECTION)
 
     prior_cpd = next(c for c in doc["cpds"] if c["variable"] == "LearningStyle")
     cpd = dict_to_cpd(prior_cpd)
@@ -205,3 +211,44 @@ async def run_test_case_in_docker(request: ExecuteCodeResponse):
             try:
                 os.unlink(temp_file_path)
             except: pass
+
+@app.post("/initialize-difficulty-network")
+async def initialize_difficulty_network(data: DifficultyInitialize):
+    try:
+        model = build_difficulty_model()
+        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION)
+
+    except Exception as e:
+        print(f"Error initializing difficulty network for user {data.user_id}: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+@app.get("/infer-difficulty/{user_id}", response_model=DifficultyPrediction)
+async def infer_difficulty(user_id: str):
+    doc = await _get_user_doc(user_id, DIFFICULTY_COLLECTION)
+
+    prior_cpd = next(c for c in doc["cpds"] if c["variable"] == "DifficultyLevel")
+    cpd = dict_to_cpd(prior_cpd)
+    values = cpd.get_values().flatten().tolist()
+    states = cpd.state_names["DifficultyLevel"]
+    posterior = dict(zip(states, values))
+
+    predicted = max(posterior, key=posterior.get)
+    return DifficultyPrediction(user_id=user_id, **posterior, predicted_difficulty=predicted)
+
+@app.post("/update-difficulty", response_model=DifficultyPrediction)
+async def update_difficulty(data: DifficultyUpdate):
+    doc = await _get_user_doc(data.user_id, DIFFICULTY_COLLECTION)
+    model = load_difficulty_model(doc)
+    evidence = {"PerformanceSignal": data.performance_signal}
+
+    try:
+        posterior = infer_difficulty_level(model, evidence)
+
+        model = update_difficulty_prior(model, posterior)
+        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    predicted = max(posterior, key=posterior.get)
+    return DifficultyPrediction(user_id=data.user_id, **posterior, predicted_difficulty=predicted)

@@ -25,5 +25,6 @@ export default function useUser() {
     isAuthenticated: !error,
     userId: data?.id,
     refetchUser: refetch,
+    solvedProblems: data?.solvedProblems,
   };
 }

@@ -29,3 +29,17 @@ class ExecuteCodeResponse(BaseModel):
     test_case: dict
     timeout: int
     test_case_num: int
+
+class DifficultyInitialize(BaseModel):
+    user_id: str
+
+class DifficultyPrediction(BaseModel):
+    user_id: str
+    Easy: float
+    Medium: float
+    Hard: float
+    predicted_difficulty: str
+
+class DifficultyUpdate(BaseModel):
+    user_id: str
+    performance_signal: str # "EasySignal", "MediumSignal", "HardSignal"

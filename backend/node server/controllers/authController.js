@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const axiosInstance = require("../lib/axiosInstance");
 
 exports.signup = async (req, res, next) => {
   try {
@@ -21,6 +22,18 @@ exports.signup = async (req, res, next) => {
       passwordConfirm: passwordConfirm,
     });
 
+    const difficultyNetworkResponse = await axiosInstance.post(
+      "/initialize-difficulty-network",
+      {
+        user_id: user._id.toString(),
+      },
+    );
+
+    console.log(
+      "Difficulty network initialized successfully: ",
+      difficultyNetworkResponse.data,
+    );
+
     const accessToken = jwt.sign(
       {
         id: user._id,
@@ -39,6 +52,8 @@ exports.signup = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    req.user = user;
+
     return res.status(200).json({ message: "Successful Signup" });
   } catch (error) {
     console.log(error);
@@ -54,12 +69,16 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user)
       return res.status(400).json({ message: "This email is not found" });
 
-    const match = await bcrypt.compare(password, user.password);
+    console.log("User found for login: ", user.password); // Debugging statement
+
+    const match = await bcrypt.compare(password, user.password.toString());
+
+    console.log("Password match result: ", match); // Debugging statement
 
     if (!match)
       return res.status(400).json({ message: "Entered password is invalid" });
@@ -82,8 +101,12 @@ exports.login = async (req, res, next) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    req.user = user;
+
+    console.log("User logged in successfully: ", user); // Debugging statement
     return res.status(200).json({ message: "Successful Login" });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "An error happened during login" });
   }
 };
@@ -119,6 +142,7 @@ exports.checkSessionStatus = (req, res) => {
     coldStartChallengeCompleted: req.user.coldStartChallengeCompleted,
     id: req.user.id,
     lastPreferredLearningStyle: req.user.lastPreferredLearningStyle,
+    solvedProblems: req.user.problemsSolved,
   });
   return;
 };
