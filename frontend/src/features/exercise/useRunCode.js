@@ -30,6 +30,7 @@ export default function useRunCode(refetchDifficulty) {
     error,
     data,
     status,
+    reset,
   } = useMutation({
     mutationFn: ({ code, problemId, userId, timeTaken, problemLevel }) =>
       runCodeApi(code, problemId, userId, timeTaken, problemLevel),
@@ -43,5 +44,5 @@ export default function useRunCode(refetchDifficulty) {
     },
   });
 
-  return { runCode, isLoading, error, data, status };
+  return { runCode, isLoading, error, data, status, reset };
 }

@@ -552,29 +552,6 @@ const exercises = [
     ],
   },
   {
-    id: 29,
-    title: "Loan Amortization Schedule",
-    description:
-      "Calculate a loan amortization schedule. Given loan amount, annual interest rate (%), and number of years, calculate the monthly payment. Then for each month, calculate interest paid, principal paid, and remaining balance. Print the first 12 months and the final total interest paid.",
-    difficulty: "hard",
-    testCases: [
-      {
-        input: "loan = 10000, rate = 5, years = 3",
-        output:
-          "Month 1: Interest = 41.67, Principal = 257.15, Balance = 9742.85\nMonth 2: Interest = 40.60, Principal = 258.22, Balance = 9484.63\n...\nMonth 12: Interest = 34.54, Principal = 264.28, Balance = 6894.12\nTotal Interest Paid = 792.45",
-        explanation:
-          "Amortization schedule for a $10,000 loan at 5% over 3 years",
-      },
-      {
-        input: "loan = 200000, rate = 4.5, years = 30",
-        output:
-          "Month 1: Interest = 750.00, Principal = 263.28, Balance = 199736.72\nMonth 2: Interest = 749.01, Principal = 264.27, Balance = 199472.45\n...\nMonth 12: Interest = 737.58, Principal = 275.70, Balance = 196875.23\nTotal Interest Paid = 164813.42",
-        explanation:
-          "Amortization schedule for a $200,000 mortgage at 4.5% over 30 years",
-      },
-    ],
-  },
-  {
     id: 30,
     title: "Conway's Game of Life (Single Generation)",
     description:
@@ -686,25 +663,26 @@ app.post("/api/v1/execute", async (req, res, next) => {
         );
         break;
       case "hard":
-        if (timeTaken > 45) performanceSignal = "MediumSignal";
+        if (timeTaken > 0.1) performanceSignal = "MediumSignal";
         console.log("Performance signal for hard problem: ", performanceSignal);
         break;
       default:
         console.log("Unknown problem level: ", problemLevel);
     }
 
-    const updateResponse = await axiosInstance.post("/update-difficulty", {
-      user_id: userId,
-      performance_signal: performanceSignal,
-    });
-
-    console.log("Difficulty update response: ", updateResponse.data);
-
     const allPassed = results.every((r) => r.passed);
-    if (allPassed)
+    if (allPassed) {
       await User.findByIdAndUpdate(userId, {
-        $push: { solvedProblems: problemId },
+        $push: { problemsSolved: problemId },
       });
+
+      const updateResponse = await axiosInstance.post("/update-difficulty", {
+        user_id: userId,
+        performance_signal: performanceSignal,
+      });
+
+      console.log("Difficulty update response: ", updateResponse.data);
+    }
 
     res.json({
       success: allPassed,

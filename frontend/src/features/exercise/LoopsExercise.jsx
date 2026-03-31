@@ -1,9 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-one_dark";
 import Loader from "../../ui/Loader";
 import useRunCode from "./useRunCode";
 import useUser from "../authentication/useUser";
 import useInferDifficulty from "../bayesianNetworks/useInferDifficulty";
-import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const exercises = [
   {
@@ -640,33 +643,6 @@ def dice_game_simulation(games: int) -> float:
     ],
   },
   {
-    id: 29,
-    title: "Loan Amortization Schedule",
-    description:
-      "Calculate a loan amortization schedule. Given loan amount, annual interest rate (%), and number of years, calculate the monthly payment. Then for each month, calculate interest paid, principal paid, and remaining balance. Print the first 12 months and the final total interest paid.",
-    difficulty: "hard",
-    starterCode: `def loan_amortization(loan: float, rate: float, years: int) -> None:
-    # Write your code here
-    # Print the first 12 months and total interest paid
-    pass`,
-    testCases: [
-      {
-        input: "loan = 10000, rate = 5, years = 3",
-        output:
-          "Month 1: Interest = 41.67, Principal = 257.15, Balance = 9742.85\nMonth 2: Interest = 40.60, Principal = 258.22, Balance = 9484.63\n...\nMonth 12: Interest = 34.54, Principal = 264.28, Balance = 6894.12\nTotal Interest Paid = 792.45",
-        explanation:
-          "Amortization schedule for a $10,000 loan at 5% over 3 years",
-      },
-      {
-        input: "loan = 200000, rate = 4.5, years = 30",
-        output:
-          "Month 1: Interest = 750.00, Principal = 263.28, Balance = 199736.72\nMonth 2: Interest = 749.01, Principal = 264.27, Balance = 199472.45\n...\nMonth 12: Interest = 737.58, Principal = 275.70, Balance = 196875.23\nTotal Interest Paid = 164813.42",
-        explanation:
-          "Amortization schedule for a $200,000 mortgage at 4.5% over 30 years",
-      },
-    ],
-  },
-  {
     id: 30,
     title: "Conway's Game of Life (Single Generation)",
     description:
@@ -704,18 +680,52 @@ function LoopsExercise() {
     predictedDifficulty,
     refetch: refetchDifficulty,
   } = useInferDifficulty(userId);
-  const selectedExercise = exercises.find(
-    (ex) =>
-      ex.difficulty === predictedDifficulty?.toLowerCase() &&
-      !solvedProblems.includes(ex.id),
-  );
+  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [status, setStatus] = useState("idle");
   const [code, setCode] = useState(selectedExercise?.starterCode || "");
   const { runCode, isLoading, data } = useRunCode(refetchDifficulty);
   const time = useRef(null);
+  const isFirstRender = useRef(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (predictedDifficulty && solvedProblems !== undefined) {
+      if (isFirstRender.current) {
+        const nextExercise = exercises.find(
+          (ex) =>
+            ex.difficulty === predictedDifficulty?.toLowerCase() &&
+            !solvedProblems?.map(Number).includes(ex.id),
+        );
+        if (nextExercise) {
+          setSelectedExercise(nextExercise);
+        }
+
+        isFirstRender.current = false;
+      }
+    }
+
+    if (isLoading) {
+      setStatus("loading");
+    } else if (data) {
+      setStatus(data.success ? "success" : "failed");
+    } else {
+      setStatus("idle");
+    }
+  }, [predictedDifficulty, solvedProblems, isLoading, data]);
+
+  console.log(
+    "Solved problems in exercises array: ",
+    exercises.filter((ex) => solvedProblems?.includes(ex.id)),
+  );
 
   console.log("Selected Exercise: ", selectedExercise);
   console.log(`User ${userId} - Solved Problems:`, solvedProblems);
-  console.log("Difficulty Scores:", { easyScore, mediumScore, hardScore });
+  console.log("Difficulty Scores:", {
+    easyScore,
+    mediumScore,
+    hardScore,
+    predictedDifficulty,
+  });
 
   useEffect(() => {
     if (selectedExercise?.starterCode) {
@@ -727,39 +737,19 @@ function LoopsExercise() {
     }
   }, [selectedExercise?.id, setCode, selectedExercise]);
 
-  const getStatus = () => {
-    if (isLoading) return "loading";
-    if (data) {
-      return data.success ? "success" : "failed";
-    }
-    return "idle";
-  };
-
-  const status = getStatus();
-
   const handleRunCode = () => {
-    runCode(
-      {
-        code,
-        problemId: selectedExercise?.id,
-        userId,
-        timeTaken: (Date.now() - time.current) / 60000,
-        problemLevel: selectedExercise?.difficulty,
-      },
-      // {
-      //   onSuccess: (data) => {
-      //     if (data.success) {
-      //       time.current = (Date.now() - time.current) / 60000;
-      //       console.log("Execution Time (minutes): ", time.current);
-      //     }
-      //   },
-      // },
-    );
+    runCode({
+      code,
+      problemId: selectedExercise?.id,
+      userId,
+      timeTaken: (Date.now() - time.current) / 60000,
+      problemLevel: selectedExercise?.difficulty,
+    });
   };
 
-  // const handleClickNextExercise = () => {
-  //   // selectedExercise = exercise
-  // };
+  const handleClickNextExercise = () => {
+    navigate(0);
+  };
 
   const handleClearCode = () => {
     setCode("");
@@ -779,9 +769,22 @@ function LoopsExercise() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-lg p-8 h-fit">
-            <h2 className="text-3xl font-bold text-dark_blue mb-2">
-              Problem: {selectedExercise?.title}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-3xl font-bold text-dark_blue">
+                Problem: {selectedExercise?.title}
+              </h2>
+              <span
+                className={`px-4 py-2 rounded-lg font-bold text-sm text-white ${
+                  selectedExercise?.difficulty === "easy"
+                    ? "bg-green-500"
+                    : selectedExercise?.difficulty === "medium"
+                      ? "bg-yellow-500"
+                      : "bg-red-500"
+                }`}
+              >
+                {selectedExercise?.difficulty?.toUpperCase()}
+              </span>
+            </div>
 
             <div className="space-y-6 text-base text-dark_blue leading-relaxed">
               <div>
@@ -830,6 +833,7 @@ function LoopsExercise() {
 
           <div className="space-y-4">
             <button
+              onClick={handleClickNextExercise}
               disabled={status !== "success"}
               className="w-full px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md disabled:hover:bg-gray-400 text-lg"
             >
@@ -841,12 +845,20 @@ function LoopsExercise() {
                 <h3 className="text-lg font-bold">Python Code Editor</h3>
               </div>
 
-              <textarea
+              <AceEditor
+                mode="python"
+                theme="one_dark"
+                onChange={(value) => setCode(value)}
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full h-80 p-4 font-mono text-sm bg-dark_blue text-offwite resize-none focus:outline-none focus:ring-2 focus:ring-medium_blue"
-                placeholder="Write your Python code here..."
-                spellCheck="false"
+                width="100%"
+                height="320px"
+                setOptions={{
+                  useWorker: false,
+                  showLineNumbers: true,
+                  tabSize: 4,
+                  useSoftTabs: true,
+                }}
+                fontSize={14}
               />
 
               <div className="flex gap-4 p-4 bg-gray-50 border-t border-gray-200">
@@ -929,7 +941,7 @@ function LoopsExercise() {
                             </pre>
                             <p className="mb-1">Got:</p>
                             <pre className="bg-red-100 p-2 rounded text-xs overflow-y-auto max-h-24 whitespace-pre-wrap break-all">
-                              {result.error || "No output"}
+                              {result.error || result.output || "No output"}
                             </pre>
                           </div>
                         ),
