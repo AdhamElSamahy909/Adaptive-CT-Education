@@ -1,0 +1,13 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#F9F7F7" stroke="#112D4E" stroke-width="2"/>
+  
+  <!-- Letter T -->
+  <text x="70" y="135" font-family="Arial, sans-serif" font-size="110" font-weight="900" fill="#112D4E" text-anchor="middle" letter-spacing="-5">T</text>
+  
+  <!-- Letter F -->
+  <text x="135" y="135" font-family="Arial, sans-serif" font-size="110" font-weight="900" fill="#3F72AF" text-anchor="middle" letter-spacing="-5">F</text>
+  
+  <!-- Subtle accent line under the letters -->
+  <line x1="50" y1="155" x2="150" y2="155" stroke="#DBE2EF" stroke-width="2" opacity="0.6"/>
+</svg>

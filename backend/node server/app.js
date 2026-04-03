@@ -699,4 +699,35 @@ app.post("/api/v1/execute", async (req, res, next) => {
   }
 });
 
+app.post("/api/v1/detect-struggling", async (req, res) => {
+  const { userId, recentAttempts } = req.body;
+  console.log("Received struggling detection request for user: ", userId);
+  console.log("Recent attempts: ", recentAttempts);
+
+  try {
+    const response = await axiosInstance.post("/detect-struggling", {
+      user_id: userId,
+      attempt_num: 5,
+      time_delta: 3,
+      test_progress: 0,
+    });
+
+    console.log(
+      "Received response from struggling detection microservice: ",
+      response.data,
+    );
+
+    res.json({
+      success: true,
+      struggling: response.data.struggling,
+    });
+  } catch (error) {
+    console.error("Error during struggling detection: ", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = app;

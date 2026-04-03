@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-python";
-import "ace-builds/src-noconflict/theme-one_dark";
+import CodeMirror from "@uiw/react-codemirror";
+import { python } from "@codemirror/lang-python";
+import { oneDark } from "@codemirror/theme-one-dark";
 import Loader from "../../ui/Loader";
 import useRunCode from "./useRunCode";
 import useUser from "../authentication/useUser";
 import useInferDifficulty from "../bayesianNetworks/useInferDifficulty";
+import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
 import { useNavigate } from "react-router-dom";
+import useDetectStruggle from "../struggle_detection/useDetectStruggle";
 
 const exercises = [
   {
@@ -19,17 +21,15 @@ const exercises = [
     # Write your code here
     pass`,
     testCases: [
-      {
-        input: "N = 10",
-        output: "30",
-        explanation: "2 + 4 + 6 + 8 + 10 = 30",
-      },
-      {
-        input: "N = 7",
-        output: "12",
-        explanation: "2 + 4 + 6 = 12",
-      },
+      { input: "N = 10", output: "30", explanation: "2 + 4 + 6 + 8 + 10 = 30" },
+      { input: "N = 7", output: "12", explanation: "2 + 4 + 6 = 12" },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize a variable 'total' to 0.\n2. Loop through numbers from 2 to N (inclusive).\n3. For each number, check if it is even (number % 2 == 0).\n4. If even, add it to 'total'.\n5. After the loop, return 'total'.",
+      visual:
+        "Start → total=0 → i=2 → i<=N? → Yes → i%2==0? → Yes → total+=i → i++ → loop → No → return total",
+    },
   },
   {
     id: 2,
@@ -46,12 +46,14 @@ const exercises = [
         output: "1\n4\n9\n16\n25",
         explanation: "1²=1, 2²=4, 3²=9, 4²=16, 5²=25",
       },
-      {
-        input: "N = 3",
-        output: "1\n4\n9",
-        explanation: "1²=1, 2²=4, 3²=9",
-      },
+      { input: "N = 3", output: "1\n4\n9", explanation: "1²=1, 2²=4, 3²=9" },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Loop through numbers from 1 to N.\n2. For each number, calculate its square (i * i).\n3. Print the square on a new line.",
+      visual:
+        "Start → i=1 → i<=N? → Yes → square = i*i → print(square) → i++ → loop → No → end",
+    },
   },
   {
     id: 3,
@@ -74,6 +76,12 @@ const exercises = [
         explanation: "O, o, a, i = 4 vowels",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize count = 0.\n2. Define a set of vowels: 'aeiouAEIOU'.\n3. Loop through each character in the word.\n4. If character is in the vowel set, increment count.\n5. Return count.",
+      visual:
+        "Start → count=0 → for each char in word → char in vowels? → Yes → count++ → next char → end → return count",
+    },
   },
   {
     id: 4,
@@ -85,17 +93,15 @@ const exercises = [
     # Write your code here using a while loop
     pass`,
     testCases: [
-      {
-        input: "N = 5",
-        output: "120",
-        explanation: "5 × 4 × 3 × 2 × 1 = 120",
-      },
-      {
-        input: "N = 4",
-        output: "24",
-        explanation: "4 × 3 × 2 × 1 = 24",
-      },
+      { input: "N = 5", output: "120", explanation: "5 × 4 × 3 × 2 × 1 = 120" },
+      { input: "N = 4", output: "24", explanation: "4 × 3 × 2 × 1 = 24" },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize result = 1.\n2. Initialize counter = N.\n3. While counter > 0:\n   - Multiply result by counter.\n   - Decrement counter by 1.\n4. Return result.",
+      visual:
+        "Start → result=1, i=N → i>0? → Yes → result*=i → i-- → loop → No → return result",
+    },
   },
   {
     id: 5,
@@ -119,6 +125,12 @@ const exercises = [
         explanation: "Row 1: '1', Row 2: '22', Row 3: '333'",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Loop row from 1 to H.\n2. For each row, print the digit 'row' repeated 'row' times.\n3. Use print(str(row) * row) to achieve repetition.",
+      visual:
+        "Start → row=1 → row<=H? → Yes → print(str(row)*row) → row++ → loop → No → end",
+    },
   },
   {
     id: 6,
@@ -141,6 +153,12 @@ const exercises = [
         explanation: "3 × 3 × 3 × 3 = 81",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize result = 1.\n2. Loop from 1 to exponent.\n3. Multiply result by base each time.\n4. Return result.",
+      visual:
+        "Start → result=1, i=1 → i<=exponent? → Yes → result*=base → i++ → loop → No → return result",
+    },
   },
   {
     id: 7,
@@ -163,6 +181,11 @@ const exercises = [
         explanation: "Multiples of 5 less than 30: 5, 10, 15, 20, 25",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Start with multiple = X.\n2. While multiple < N:\n   - Print multiple.\n   - Increase multiple by X.",
+      visual: "Start → m=X → m<N? → Yes → print(m) → m+=X → loop → No → end",
+    },
   },
   {
     id: 8,
@@ -188,6 +211,12 @@ const exercises = [
         explanation: "Three wrong guesses followed by the correct guess",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Secret = 7.\n2. Loop forever:\n   - Read guess.\n   - If guess == secret: print('Correct!') and break.\n   - Else: print('Try again!').",
+      visual:
+        "Start → secret=7 → read guess → guess==7? → Yes → print('Correct!') → end\n                  → No → print('Try again!') → loop",
+    },
   },
   {
     id: 9,
@@ -210,6 +239,12 @@ const exercises = [
         explanation: "1 + 1/4 + 1/9 + 1/16 + 1/25 = 1.463611",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize total = 0.0.\n2. Loop i from 1 to N.\n3. Add 1/(i*i) to total.\n4. After loop, print total formatted to 6 decimal places.",
+      visual:
+        "Start → total=0, i=1 → i<=N? → Yes → total+=1/(i*i) → i++ → loop → No → print(f'{total:.6f}')",
+    },
   },
   {
     id: 10,
@@ -234,6 +269,11 @@ const exercises = [
           "'C' repeated twice, 'a' repeated twice, 't' repeated twice",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Loop through each character in the string.\n2. For each character, print the character repeated N times.\n3. Use print(char * N) to repeat.",
+      visual: "Start → for each char in text → print(char*N) → next char → end",
+    },
   },
   {
     id: 11,
@@ -256,6 +296,12 @@ const exercises = [
         explanation: "Row 1: 1; Row 2: 2,3; Row 3: 4,5,6",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize current = 1.\n2. For row from 1 to R:\n   - For col from 1 to row:\n       - Print current, then increment current.\n   - Print newline.",
+      visual:
+        "Start → curr=1 → row=1→row<=R? → Yes → col=1→col<=row? → Yes → print(curr) → curr++ → col++ → loop col → newline → row++",
+    },
   },
   {
     id: 12,
@@ -278,6 +324,12 @@ const exercises = [
         explanation: "60 = 2 × 2 × 3 × 5",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize factors = [] and i = 2.\n2. While i * i <= N:\n   - While N % i == 0:\n        append i to factors, N //= i.\n   - i += 1.\n3. If N > 1, append N.\n4. Return factors.",
+      visual:
+        "Start → factors=[], i=2 → i*i<=N? → Yes → N%i==0? → Yes → factors.append(i), N/=i → loop → i++ → after loop → if N>1 append N → return factors",
+    },
   },
   {
     id: 13,
@@ -300,6 +352,12 @@ const exercises = [
         explanation: "4x4 square with border of asterisks and hollow interior",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. For row from 1 to S:\n   - For col from 1 to S:\n        - If row==1 or row==S or col==1 or col==S: print '*', else print space.\n   - Print newline.",
+      visual:
+        "Start → row=1→row<=S? → Yes → col=1→col<=S? → Yes → if border: print('*') else print(' ') → col++ → newline → row++",
+    },
   },
   {
     id: 14,
@@ -324,6 +382,11 @@ const exercises = [
           "GCD(56, 98) = 14. Euclidean algorithm: 98%56=42, 56%42=14, 42%14=0",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. While b != 0:\n   - Set temp = b.\n   - Set b = a % b.\n   - Set a = temp.\n2. Return a.",
+      visual: "Start → while b≠0: temp=b, b=a%b, a=temp → loop → return a",
+    },
   },
   {
     id: 15,
@@ -347,6 +410,12 @@ const exercises = [
           "First occurrence: p, r, o, g, a, m, i, n. Duplicate letters removed.",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize empty result string and empty set seen.\n2. For each char in word:\n   - If char not in seen: add to result and seen.\n3. Return result.",
+      visual:
+        "Start → result='', seen=set() → for each char → char in seen? → No → result+=char, seen.add(char) → next char → return result",
+    },
   },
   {
     id: 16,
@@ -369,6 +438,12 @@ const exercises = [
         explanation: "12 → 6 → 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1 (9 steps)",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize steps = 0, n = start.\n2. While n != 1:\n   - If n % 2 == 0: n //= 2.\n   - Else: n = 3*n + 1.\n   - steps++.\n3. Return steps.",
+      visual:
+        "Start → steps=0, n=start → n≠1? → Yes → n%2==0? → Yes → n/=2 → No → n=3n+1 → steps++ → loop → return steps",
+    },
   },
   {
     id: 17,
@@ -391,6 +466,12 @@ const exercises = [
         explanation: "The number 10 does not appear in the sequence",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize count = 0.\n2. For each number in the list of 10 numbers:\n   - If number == target: count++.\n3. After loop, if count>0: found=True else False.\n4. Return (found, count).",
+      visual:
+        "Start → count=0 → for each num in numbers → num==target? → Yes → count++ → next num → found = count>0 → return (found, count)",
+    },
   },
   {
     id: 18,
@@ -414,6 +495,12 @@ const exercises = [
         explanation: "3x3 multiplication table with numbers right-aligned",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. For i from 1 to N:\n   - For j from 1 to N:\n        - Print i*j right-aligned in width 4.\n   - Print newline.",
+      visual:
+        "Start → i=1→i<=N? → Yes → j=1→j<=N? → Yes → print(f'{i*j:4d}') → j++ → newline → i++",
+    },
   },
   {
     id: 19,
@@ -437,6 +524,12 @@ const exercises = [
         explanation: "Row 1: 3 asterisks, Row 2: 2, Row 3: 1",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. For row from H down to 1:\n   - Print '*' repeated row times.\n   - Move to next line.",
+      visual:
+        "Start → row=H → row>=1? → Yes → print('*'*row) → row-- → loop → No → end",
+    },
   },
   {
     id: 20,
@@ -459,6 +552,12 @@ const exercises = [
         explanation: "hello reversed is olleh, which is different",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Convert word to lowercase.\n2. Initialize left = 0, right = len(word)-1.\n3. While left < right:\n   - If word[left] != word[right]: return 'Not Palindrome'.\n   - left++, right--.\n4. Return 'Palindrome'.",
+      visual:
+        "Start → word_lower → left=0, right=len-1 → left<right? → Yes → chars equal? → No → return 'Not Palindrome' → Yes → left++, right-- → loop → return 'Palindrome'",
+    },
   },
   {
     id: 21,
@@ -486,6 +585,12 @@ def dice_game_simulation(games: int) -> float:
           "With more simulations, the average score becomes more stable around the theoretical value.",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize total_score = 0.\n2. For each game from 1 to games:\n   - score = 0\n   - While True:\n        roll = random.randint(1,6)\n        if roll == 1: break\n        else: score += roll\n   - total_score += score\n3. Return total_score / games.",
+      visual:
+        "Start → total=0 → for game in range(games): score=0 → loop: roll=randint(1,6) → roll==1? → Yes → break → No → score+=roll → continue → total+=score → next game → return total/games",
+    },
   },
   {
     id: 22,
@@ -508,6 +613,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "Pascal's Triangle with 4 rows, centered formatting",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize triangle as list of lists.\n2. For each row from 0 to R-1:\n   - Create a new row with first element 1.\n   - For each column from 1 to row-1: new_row.append(prev_row[col-1]+prev_row[col])\n   - If row>0: append 1 at end.\n   - Append row to triangle.\n3. Print each row centered.",
+      visual:
+        "Start → triangle=[] → for i in range(R): row=[1]; if i>0: for j in range(1,i): row.append(triangle[i-1][j-1]+triangle[i-1][j]); row.append(1); triangle.append(row) → print with spacing",
+    },
   },
   {
     id: 23,
@@ -530,6 +641,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "M(1000) + CM(900) + XC(90) + IV(4) = 1994",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Create a mapping of Roman symbols to values.\n2. Initialize total = 0, prev_value = 0.\n3. Loop through characters from right to left:\n   - Get current value.\n   - If current < prev_value: subtract current from total.\n   - Else: add current to total.\n   - Update prev_value = current.\n4. Return total.",
+      visual:
+        "Start → mapping = {'I':1,...} → total=0, prev=0 → for char in reversed(roman): curr=mapping[char]; if curr<prev: total-=curr else: total+=curr; prev=curr → return total",
+    },
   },
   {
     id: 24,
@@ -552,6 +669,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "Negative numbers sorted correctly",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Compare a and b, swap if a > b.\n2. Compare b and c, swap if b > c.\n3. Compare a and b again, swap if a > b.\n4. Return (a, b, c).",
+      visual:
+        "Start → if a>b: swap(a,b) → if b>c: swap(b,c) → if a>b: swap(a,b) → return (a,b,c)",
+    },
   },
   {
     id: 25,
@@ -574,6 +697,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "No three in a row, column, or diagonal",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Define winning combinations: rows (0-2,3-5,6-8), columns (0,3,6;1,4,7;2,5,8), diagonals (0,4,8;2,4,6).\n2. For each combination, check if all three are 'X' or all 'O'.\n3. If found, return that player; else return 'No winner'.",
+      visual:
+        "Start → win_patterns = [(0,1,2),...] → for pattern in patterns: if board[p0]==board[p1]==board[p2] and board[p0]!='_': return board[p0] → return 'No winner'",
+    },
   },
   {
     id: 26,
@@ -596,6 +725,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "All prime numbers less than or equal to 50",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Create a boolean list 'is_prime' of size N+1, initialize all True.\n2. Set is_prime[0] = is_prime[1] = False.\n3. For i from 2 to sqrt(N):\n   - If is_prime[i]:\n        - For j from i*i to N step i: set is_prime[j] = False.\n4. Collect all i where is_prime[i] is True.\n5. Return list.",
+      visual:
+        "Start → is_prime = [True]*(N+1) → is_prime[0]=is_prime[1]=False → for i=2 to sqrt(N): if is_prime[i]: for j=i*i to N step i: is_prime[j]=False → return [i for i,prime in enumerate(is_prime) if prime]",
+    },
   },
   {
     id: 27,
@@ -619,6 +754,12 @@ def dice_game_simulation(games: int) -> float:
         explanation: "P→C, y→l, t→g, h→u, o→b, n→a (ROT13)",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Initialize result = ''.\n2. For each char in message:\n   - If char is uppercase: result += chr((ord(char) - 65 + shift) % 26 + 65).\n   - Else if char is lowercase: result += chr((ord(char) - 97 + shift) % 26 + 97).\n   - Else: result += char.\n3. Return result.",
+      visual:
+        "Start → result='' → for char in message: if char.isupper(): shift_char = (ord(char)-65+shift)%26+65; result+=chr(shift_char); elif char.islower(): similar; else: result+=char → return result",
+    },
   },
   {
     id: 28,
@@ -630,17 +771,18 @@ def dice_game_simulation(games: int) -> float:
     # Write your code here
     pass`,
     testCases: [
-      {
-        input: "number = 987",
-        output: "6",
-        explanation: "9+8+7=24, 2+4=6",
-      },
+      { input: "number = 987", output: "6", explanation: "9+8+7=24, 2+4=6" },
       {
         input: "number = 123456789",
         output: "9",
         explanation: "1+2+3+4+5+6+7+8+9=45, 4+5=9",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. While number >= 10:\n   - Convert number to string, sum digits.\n   - Replace number with the sum.\n2. Return number.",
+      visual: "Start → while n>=10: n = sum(int(d) for d in str(n)) → return n",
+    },
   },
   {
     id: 30,
@@ -668,6 +810,12 @@ def dice_game_simulation(games: int) -> float:
           "A small pattern rotates orientation according to Game of Life rules",
       },
     ],
+    wayToSolve: {
+      verbal:
+        "1. Create a new grid of same size, all zeros.\n2. For each cell (r,c) in the grid:\n   - Count live neighbors (8 directions, handle boundaries).\n   - Apply rules: if cell is alive and neighbors in (2,3): new grid[r][c]=1; if cell is dead and neighbors==3: new grid[r][c]=1.\n3. Return new grid.",
+      visual:
+        "Start → new_grid = [[0]*5 for _ in range(5)] → for r in 0..4: for c in 0..4: neighbors = sum over dr,dc of grid[r+dr][c+dc] (if inside) → if grid[r][c]==1 and neighbors in (2,3): new=1; elif grid[r][c]==0 and neighbors==3: new=1 → return new_grid",
+    },
   },
 ];
 
@@ -680,13 +828,18 @@ function LoopsExercise() {
     predictedDifficulty,
     refetch: refetchDifficulty,
   } = useInferDifficulty(userId);
+  const { detectStruggle, data: struggleDetectionData } = useDetectStruggle();
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [status, setStatus] = useState("idle");
   const [code, setCode] = useState(selectedExercise?.starterCode || "");
+  const [showStruggleModal, setShowStruggleModal] = useState(false);
   const { runCode, isLoading, data } = useRunCode(refetchDifficulty);
   const time = useRef(null);
   const isFirstRender = useRef(true);
   const navigate = useNavigate();
+  const { verbalScore, visualScore } = useInferLearningStyle(userId);
+
+  const isStruggling = struggleDetectionData?.struggling;
 
   useEffect(() => {
     if (predictedDifficulty && solvedProblems !== undefined) {
@@ -737,6 +890,24 @@ function LoopsExercise() {
     }
   }, [selectedExercise?.id, setCode, selectedExercise]);
 
+  useEffect(() => {
+    if (isStruggling) {
+      setShowStruggleModal(true);
+    }
+  }, [isStruggling]);
+
+  useEffect(() => {
+    if (showStruggleModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [showStruggleModal]);
+
   const handleRunCode = () => {
     runCode({
       code,
@@ -745,6 +916,7 @@ function LoopsExercise() {
       timeTaken: (Date.now() - time.current) / 60000,
       problemLevel: selectedExercise?.difficulty,
     });
+    detectStruggle({ userId });
   };
 
   const handleClickNextExercise = () => {
@@ -753,6 +925,207 @@ function LoopsExercise() {
 
   const handleClearCode = () => {
     setCode("");
+  };
+
+  const parseFlowchart = (visualGuide) => {
+    if (!visualGuide) return [];
+    const steps = visualGuide.split("→").map((s) => s.trim());
+    const nodes = [];
+
+    let i = 0;
+    let fallbackId = 1000;
+    while (i < steps.length) {
+      if (steps[i].endsWith("?")) {
+        const decision = {
+          id: fallbackId++,
+          label: steps[i],
+          type: "decision",
+          yesPath: [],
+          noPath: [],
+          yesLoops: false,
+          noLoops: false,
+        };
+        i++;
+
+        let currentPath = null;
+
+        while (i < steps.length) {
+          const step = steps[i];
+          if (step === "Yes") {
+            currentPath = decision.yesPath;
+            i++;
+          } else if (step === "No") {
+            currentPath = decision.noPath;
+            i++;
+          } else if (step === "loop") {
+            if (currentPath === decision.yesPath) decision.yesLoops = true;
+            if (currentPath === decision.noPath) decision.noLoops = true;
+            i++;
+            if (i < steps.length && steps[i] === "No") {
+              currentPath = decision.noPath;
+              i++;
+            } else {
+              break;
+            }
+          } else {
+            if (currentPath) {
+              currentPath.push({
+                id: fallbackId++,
+                label: step,
+                type: "normal",
+              });
+              i++;
+            } else {
+              break;
+            }
+          }
+        }
+        nodes.push(decision);
+      } else if (steps[i] === "loop") {
+        nodes.push({ id: fallbackId++, type: "loopBack" });
+        i++;
+      } else {
+        nodes.push({
+          id: fallbackId++,
+          label: steps[i],
+          type: "normal",
+          next: null,
+        });
+        i++;
+      }
+    }
+    return nodes;
+  };
+
+  const closeStruggleModal = () => {
+    setShowStruggleModal(false);
+  };
+
+  const FlowchartDiagram = ({ visualGuide }) => {
+    if (!visualGuide) return null;
+    const nodes = parseFlowchart(visualGuide);
+
+    return (
+      <div className="w-full flex-col flex items-center justify-center font-sans text-sm relative pb-10">
+        {nodes.map((node, i) => {
+          if (node.type === "normal") {
+            return (
+              <div key={node.id} className="flex flex-col items-center">
+                {i > 0 && (
+                  <div className="h-6 w-0.5 bg-blue-500 relative">
+                    <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                  </div>
+                )}
+                <div className="px-4 py-2 border-2 border-blue-500 bg-blue-100 rounded-lg shadow-sm z-10 my-1 max-w-48 text-center text-blue-900 font-medium">
+                  {node.label}
+                </div>
+              </div>
+            );
+          } else if (node.type === "decision") {
+            return (
+              <div
+                key={node.id}
+                className="flex flex-col items-center w-full mt-2"
+              >
+                {i > 0 && (
+                  <div className="h-6 w-0.5 bg-blue-500 relative">
+                    <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                  </div>
+                )}
+
+                {/* Diamond Shape Wrapper with Yes Branch branching out */}
+                <div className="relative flex items-center justify-center my-2 w-full max-w-xs z-10">
+                  {/* Yes Branch horizontal line out from the center */}
+                  {node.yesPath.length > 0 && (
+                    <div className="absolute top-1/2 left-1/2 w-48 h-0.5 bg-blue-500 -z-10">
+                      <div className="absolute -top-5 left-16 text-xs font-bold text-blue-700 bg-white px-1">
+                        Yes
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="w-28 h-28 relative flex items-center justify-center">
+                    <div className="absolute w-20 h-20 bg-yellow-100 border-2 border-yellow-500 transform rotate-45 shadow-sm"></div>
+                    <span className="relative z-10 text-yellow-900 font-bold text-center px-2">
+                      {node.label}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-row w-full justify-center relative">
+                  {/* The Main path (No) going straight down */}
+                  <div className="flex flex-col items-center w-64">
+                    <div className="h-8 w-0.5 bg-blue-500 relative">
+                      <div className="absolute top-1 ml-2 text-xs font-bold text-blue-700 bg-white px-1 z-20">
+                        No
+                      </div>
+                      <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45 z-10"></div>
+                    </div>
+
+                    {node.noPath.map((child, j) => (
+                      <div
+                        key={child.id}
+                        className="flex flex-col items-center w-full relative z-10"
+                      >
+                        {j > 0 && (
+                          <div className="h-6 w-0.5 bg-blue-500 relative">
+                            <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                          </div>
+                        )}
+                        <div className="px-4 py-2 border-2 border-blue-500 bg-blue-100 rounded-lg shadow-sm my-1 max-w-48 text-center text-blue-900 font-medium">
+                          {child.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* The Loop branch (Yes) going down parallel on the right */}
+                  {node.yesPath.length > 0 && (
+                    <div className="absolute left-[calc(50%+112px)] top-[-4rem] flex flex-col items-center w-40 z-0">
+                      {/* Vertical line from the horizontal Yes arm */}
+                      <div className="h-[4.5rem] w-0.5 bg-blue-500 relative">
+                        <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                      </div>
+
+                      <div className="relative w-full flex flex-col items-center group">
+                        {node.yesPath.map((child, j) => (
+                          <div
+                            key={child.id}
+                            className="flex flex-col items-center w-full"
+                          >
+                            {j > 0 && (
+                              <div className="h-6 w-0.5 bg-blue-500 relative">
+                                <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                              </div>
+                            )}
+                            <div className="px-3 py-2 border-2 border-green-500 bg-green-50 rounded shadow-sm my-1 max-w-36 text-center text-green-900 text-xs font-semibold z-20 w-11/12 relative">
+                              {child.label}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Dashed Loop back line wrap-around */}
+                        {node.yesLoops && (
+                          <>
+                            <div className="absolute -right-4 top-[-6.5rem] bottom-4 w-10 border-r-2 border-t-2 border-b-2 border-dashed border-red-400 opacity-70 -z-10 rounded-r-xl"></div>
+                            <div className="text-red-500 text-[10px] font-bold px-2 py-0.5 whitespace-nowrap bg-white border border-red-200 rounded mt-3 z-20 relative shadow-sm">
+                              ↺ Loop Back
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          } else if (node.type === "loopBack") {
+            return null; // Handled visually in the Yes branch above
+          }
+          return null;
+        })}
+      </div>
+    );
   };
 
   return (
@@ -769,7 +1142,7 @@ function LoopsExercise() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-2xl shadow-lg p-8 h-fit">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-6">
               <h2 className="text-3xl font-bold text-dark_blue">
                 Problem: {selectedExercise?.title}
               </h2>
@@ -845,20 +1218,23 @@ function LoopsExercise() {
                 <h3 className="text-lg font-bold">Python Code Editor</h3>
               </div>
 
-              <AceEditor
-                mode="python"
-                theme="one_dark"
-                onChange={(value) => setCode(value)}
+              <CodeMirror
                 value={code}
-                width="100%"
+                onChange={(value) => setCode(value)}
                 height="320px"
-                setOptions={{
-                  useWorker: false,
-                  showLineNumbers: true,
-                  tabSize: 4,
-                  useSoftTabs: true,
+                extensions={[python()]}
+                theme={oneDark}
+                className="w-full"
+                basicSetup={{
+                  lineNumbers: true,
+                  highlightActiveLineGutter: true,
+                  foldGutter: true,
+                  dropCursor: true,
+                  allowMultipleSelections: true,
+                  indentOnInput: true,
+                  bracketMatching: true,
+                  closeBrackets: true,
                 }}
-                fontSize={14}
               />
 
               <div className="flex gap-4 p-4 bg-gray-50 border-t border-gray-200">
@@ -959,6 +1335,63 @@ function LoopsExercise() {
           </div>
         </div>
       </div>
+
+      {showStruggleModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div className="p-8 flex-shrink-0">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-red-600">
+                  ⚠️ Struggle Detected
+                </h2>
+                <button
+                  onClick={closeStruggleModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all flex-shrink-0"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-gray-700 text-lg text-center">
+                We've detected that you might be struggling with this exercise.
+                Here's how to solve it:
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-8 py-4">
+              {visualScore > verbalScore ? (
+                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg">
+                  <h3 className="text-lg font-bold text-medium_blue mb-4">
+                    Flowchart Guide
+                  </h3>
+                  <div>
+                    <FlowchartDiagram
+                      visualGuide={selectedExercise?.wayToSolve?.visual}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg">
+                  <h3 className="text-lg font-bold text-medium_blue mb-4">
+                    Step-by-Step Guide
+                  </h3>
+                  <div className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-mono">
+                    {selectedExercise?.wayToSolve?.verbal}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-8 flex-shrink-0 border-t border-gray-200">
+              <button
+                onClick={closeStruggleModal}
+                className="w-full px-4 py-3 bg-medium_blue text-white font-bold rounded-lg hover:bg-dark_blue transition-all duration-200"
+              >
+                Got it, Thanks!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

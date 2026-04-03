@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from network import build_model, infer_style, load_model, update_prior, build_difficulty_model, load_difficulty_model, infer_difficulty_level, update_difficulty_prior, model_to_doc
-from models import ColdStartInput, BehaviorUpdate, StylePrediction, TestResult, ExecuteCodeResponse, DifficultyPrediction, DifficultyUpdate, DifficultyInitialize
+from models import ColdStartInput, BehaviorUpdate, ExecuteCodeResponse, StylePrediction, TestResult, ExecuteCodeResponse, DifficultyPrediction, DifficultyUpdate, DifficultyInitialize, StrugglingDetectionInput, StrugglingDetectionResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from serializable import dict_to_cpd
 import os
@@ -12,7 +12,9 @@ import asyncio
 import uuid
 from test_runner import create_test_runner
 import traceback
-
+from model.load_model import load_model
+from typing import Dict, List
+import torch
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,14 +29,14 @@ DB_NAME = "Adaptive_CT_Education"
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[DB_NAME]
 
-# collection = "user_networks"
-
 LEARNING_STYLE_COLLECTION = "user_learning_style_networks"
 DIFFICULTY_COLLECTION     = "user_difficulty_networks"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
+
+struggling_detector_model = load_model()
 
 @app.on_event("startup")
 async def startup_db_client():
@@ -252,3 +254,68 @@ async def update_difficulty(data: DifficultyUpdate):
     
     predicted = max(posterior, key=posterior.get)
     return DifficultyPrediction(user_id=data.user_id, **posterior, predicted_difficulty=predicted)
+
+user_sessions: Dict[str, List[List[float]]] = {}
+
+TIME_MEAN = 60.06170434170017
+TIME_STD = 67.72113036837628
+MAX_ATTEMPTS = 15
+
+ERROR_MAP = {
+    'syntax': 0,
+    'runtime': 1,
+    'logic': 2,
+    'compilation': 3
+}
+
+@app.post("/detect-struggling", response_model=StrugglingDetectionResponse)
+async def detect_struggling(data: StrugglingDetectionInput):
+    user_id = data.user_id
+
+    err_val = 0
+    if data.error_type and data.error_type.lower() in ERROR_MAP:
+        err_val = ERROR_MAP[data.error_type.lower()]
+
+    code_change = data.code_len_change if data.code_len_change is not None else 0
+    sim_to_sol = data.similarity_to_solution if data.similarity_to_solution is not None else 0
+    consecutive_errs = data.consecutive_same_error if data.consecutive_same_error is not None else 0
+
+    feature_vector = [
+        data.attempt_num / MAX_ATTEMPTS,
+        (data.time_delta - TIME_MEAN) / TIME_STD,
+        err_val / 3.0,
+        data.test_progress,
+        code_change,
+        sim_to_sol,
+        consecutive_errs / 3.0
+    ]
+
+    if user_id not in user_sessions:
+        user_sessions[user_id] = []
+
+    user_sessions[user_id].append(feature_vector)
+
+    if len(user_sessions) > MAX_ATTEMPTS:
+        user_sessions[user_id] = user_sessions[user_id][-MAX_ATTEMPTS:]
+
+    current_sequence = user_sessions[user_id]
+
+    seq_length = len(current_sequence)
+    if seq_length < MAX_ATTEMPTS:
+        padding = [[0.0] * 7 for _ in range(MAX_ATTEMPTS - seq_length)]
+        padded_sequence = padding + current_sequence
+    else:
+        padded_sequence = current_sequence
+
+    input_tensor = torch.tensor(padded_sequence, dtype=torch.float32).unsqueeze(0)
+
+    device = next(struggling_detector_model.parameters()).device
+    input_tensor = input_tensor.to(device)
+
+    with torch.no_grad():
+        logits = struggling_detector_model(input_tensor)
+        probability = torch.sigmoid(logits).item()
+
+    is_struggling = probability >= 0.5
+
+    return StrugglingDetectionResponse(user_id=user_id, struggling=is_struggling)

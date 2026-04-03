@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import useUser from "../features/authentication/useUser";
 import ColdStartChallenge from "../features/bayesianNetworks/ColdStartChallenge";
+import logo from "../assets/logo.svg";
 
 function AppLayout() {
   const { coldStartChallengeFixed } = useUser();
@@ -13,7 +14,10 @@ function AppLayout() {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-8">
-                <h1 className="text-2xl font-bold text-white">ThinkFlow</h1>
+                <div className="flex items-center gap-3">
+                  <img src={logo} alt="ThinkFlow Logo" className="w-12 h-12" />
+                  <h1 className="text-2xl font-bold text-white">ThinkFlow</h1>
+                </div>
 
                 <div className="hidden md:flex gap-2">
                   <NavLink

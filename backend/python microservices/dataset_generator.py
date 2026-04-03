@@ -1,5 +1,11 @@
 import numpy as np
 import pandas as pd
+import torch
+import torch.nn as nn
+from torch.utils.data import TensorDataset, DataLoader
+import torch.optim as optim
+from LSTM import LSTMPredictor
+import os
 import random
 
 NUM_SAMPLES = 10000
@@ -148,6 +154,11 @@ def pad_features(sequences, max_len=MAX_ATTEMPTS):
     time_mean = np.mean(all_times)
     time_std = np.std(all_times) + 1e-8
 
+    print(f"--- IMPORTANT FOR FASTAPI ---")
+    print(f"TIME_MEAN = {time_mean}")
+    print(f"TIME_STD = {time_std}")
+    print(f"-----------------------------")
+
     arr = []
     for seq in sequences:
         feats = []
@@ -176,3 +187,53 @@ Y = np.array(labels, dtype=np.int32)
 print(f"X shape: {W.shape}")
 print(f"Y shape: {Y.shape}")
 print(f"Positive (struggling) samples: {sum(Y)}")
+
+W_tensor = torch.tensor(W, dtype=torch.float32)
+Y_tensor = torch.tensor(Y, dtype=torch.float32).unsqueeze(1)
+
+batch_size = 64
+dataset = TensorDataset(W_tensor, Y_tensor)
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+device = torch.device("mps")
+model = LSTMPredictor(input_dim=7, n_hidden=51).to(device)
+
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+epochs = 35
+
+print("Starting Training...")
+for epoch in range(epochs):
+    model.train()
+    total_loss = 0.0
+    correct_preds = 0
+    total_samples = 0
+
+    for batch_x, batch_y in dataloader:
+        batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+
+        optimizer.zero_grad()
+
+        logits = model(batch_x)
+
+        loss = criterion(logits, batch_y)
+
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+        preds = torch.sigmoid(logits).round()
+        correct_preds += (preds == batch_y).sum().item()
+        total_samples += batch_y.size(0)
+
+    avg_loss = total_loss / len(dataloader)
+    accuracy = correct_preds / total_samples
+    print(f"Epoch [{epoch+1}/{epochs}] | Loss: {avg_loss:.4f} | Accuracy: {accuracy:.4f}")
+
+model_dir = "model"
+os.makedirs(model_dir, exist_ok=True)
+save_path = os.path.join(model_dir, "struggling_detector.pth")
+torch.save(model.state_dict(), save_path)
+print(f"Training complete! Model saved successfully to: {save_path}")
