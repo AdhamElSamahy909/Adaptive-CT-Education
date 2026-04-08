@@ -9,12 +9,13 @@ import Conditionals from "./pages/Conditionals";
 import Sequential from "./pages/Sequential";
 import ProtectedRoute from "./ui/protectedRoute";
 import AppLayout from "./ui/AppLayout";
-import LoopsLecture from "./features/lecture/LoopsLecture";
-import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
-import SequentialLecture from "./features/lecture/SequentialLecture";
+// import LoopsLecture from "./features/lecture/LoopsLecture";
+// import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
+// import SequentialLecture from "./features/lecture/SequentialLecture";
 import LoopsExercise from "./features/exercise/LoopsExercise";
 import ConditionalsExercise from "./features/exercise/ConditionalsExercise";
 import SequentialExercise from "./features/exercise/SequentialExercise";
+import LecturePage from "./pages/LecturePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,22 +59,19 @@ function App() {
             <Route path="home" element={<Home />} />
             <Route path="loops" element={<Loops />} />
             <Route path="loops/exercise" element={<LoopsExercise />} />
-            <Route path="loops/lecture" element={<LoopsLecture />} />
+            <Route path="loops/lecture" element={<LecturePage />} />
             <Route path="conditionals" element={<Conditionals />} />
             <Route
               path="conditionals/exercise"
               element={<ConditionalsExercise />}
             />
-            <Route
-              path="conditionals/lecture"
-              element={<ConditionalsLecture />}
-            />
+            <Route path="conditionals/lecture" element={<LecturePage />} />
             <Route path="sequential" element={<Sequential />} />
             <Route
               path="sequential/exercise"
               element={<SequentialExercise />}
             />
-            <Route path="sequential/lecture" element={<SequentialLecture />} />
+            <Route path="sequential/lecture" element={<LecturePage />} />
           </Route>
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
