@@ -12,7 +12,7 @@ import asyncio
 import uuid
 from test_runner import create_test_runner
 import traceback
-from model.load_model import load_model
+from model.load_model import load_detector_model
 from typing import Dict, List
 import torch
 
@@ -36,7 +36,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-struggling_detector_model = load_model()
+struggling_detector_model = load_detector_model()
 
 @app.on_event("startup")
 async def startup_db_client():

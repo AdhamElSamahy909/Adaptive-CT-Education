@@ -13,7 +13,7 @@ import LoopsLecture from "./features/lecture/LoopsLecture";
 import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
 import SequentialLecture from "./features/lecture/SequentialLecture";
 import LoopsExercise from "./features/exercise/LoopsExercise";
-import ConditionalExercise from "./features/exercise/ConditionalExercise";
+import ConditionalsExercise from "./features/exercise/ConditionalsExercise";
 import SequentialExercise from "./features/exercise/SequentialExercise";
 
 const queryClient = new QueryClient({
@@ -62,7 +62,7 @@ function App() {
             <Route path="conditionals" element={<Conditionals />} />
             <Route
               path="conditionals/exercise"
-              element={<ConditionalExercise />}
+              element={<ConditionalsExercise />}
             />
             <Route
               path="conditionals/lecture"

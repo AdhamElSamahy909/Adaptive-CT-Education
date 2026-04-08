@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 async function runCodeApi(code, problemId, userId, timeTaken, problemLevel) {
   try {
     console.log("Running code:", code);
-    const { data } = await axiosInstance.post("/execute", {
+    const { data } = await axiosInstance.post("/exercises/execute", {
       code,
       problemId,
       userId,

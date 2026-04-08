@@ -1,5 +1,12 @@
+import useUser from "../authentication/useUser";
+import SequentialExerciseInstructorsPage from "./SequentialExerciseInstructorsPage";
+import SequentialExerciseStudentsPage from "./SequentialExerciseStudentsPage";
+
 function SequentialExercise() {
-  return <div>SequentialExercise</div>;
+  const { role } = useUser();
+
+  if (role === "instructor") return <SequentialExerciseInstructorsPage />;
+  else return <SequentialExerciseStudentsPage />;
 }
 
 export default SequentialExercise;

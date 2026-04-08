@@ -1,12 +1,19 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, Link } from "react-router-dom";
 import useUser from "../features/authentication/useUser";
 import ColdStartChallenge from "../features/bayesianNetworks/ColdStartChallenge";
 import logo from "../assets/logo.svg";
+import useLogout from "../features/authentication/useLogout";
 
 function AppLayout() {
-  const { coldStartChallengeFixed } = useUser();
+  const { coldStartChallengeFixed, role } = useUser();
+  const { logout } = useLogout();
 
-  if (!coldStartChallengeFixed) return <ColdStartChallenge />;
+  const handleLogout = () => {
+    logout();
+  };
+
+  if (!coldStartChallengeFixed && role === "student")
+    return <ColdStartChallenge />;
   else
     return (
       <div className="min-h-screen bg-offwite">
@@ -14,10 +21,13 @@ function AppLayout() {
           <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-8">
-                <div className="flex items-center gap-3">
+                <Link
+                  to="/"
+                  className="flex items-center gap-3 no-underline hover:no-underline focus:outline-none"
+                >
                   <img src={logo} alt="ThinkFlow Logo" className="w-12 h-12" />
                   <h1 className="text-2xl font-bold text-white">ThinkFlow</h1>
-                </div>
+                </Link>
 
                 <div className="hidden md:flex gap-2">
                   <NavLink
@@ -59,7 +69,10 @@ function AppLayout() {
                 </div>
               </div>
 
-              <button className="px-4 py-2 bg-light_blue text-dark_blue font-semibold rounded-lg hover:bg-offwite transition-colors">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-light_blue text-dark_blue font-semibold rounded-lg hover:bg-offwite transition-colors"
+              >
                 Logout
               </button>
             </div>

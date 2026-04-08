@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema(
       minlength: 5,
       select: false,
     },
+    role: {
+      type: String,
+      enum: ["student", "instructor"],
+      required: [true, "please specify your role"],
+    },
     passwordConfirm: {
       type: String,
       required: [
@@ -60,13 +65,6 @@ userSchema.pre("save", async function () {
     this.passwordConfirm = undefined;
   }
 });
-
-// userSchema.methods.correctPassword = async function (
-//   candidatePassword,
-//   userPassword,
-// ) {
-//   return await bcrypt.compare(candidatePassword, userPassword);
-// };
 
 const User = mongoose.model("User", userSchema);
 

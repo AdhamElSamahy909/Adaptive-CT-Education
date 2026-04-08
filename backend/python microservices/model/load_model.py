@@ -2,7 +2,7 @@ from LSTM import LSTMPredictor
 import torch
 import os
 
-def load_model():
+def load_detector_model():
     loaded_model = LSTMPredictor(input_dim=7, n_hidden=51)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))

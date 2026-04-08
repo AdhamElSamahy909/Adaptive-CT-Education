@@ -16,14 +16,14 @@ async function detectStruggleApi(
     console.log("Detecting struggle for user: ", userId);
     const { data } = await axiosInstance.post("/detect-struggling", {
       userId,
-      attempt_num: attemptNum,
-      time_delta: timeDelta,
-      test_progress: testProgress,
-      error_type: errorType,
-      code_len_change: codeLenChange,
-      code_len_prev: codeLenPrev,
-      similarity_to_solution: similarityToSolution,
-      consecutive_same_error: consecutiveSameError,
+      attemptNum,
+      timeDelta,
+      testProgress,
+      errorType,
+      codeLenChange,
+      codeLenPrev,
+      similarityToSolution,
+      consecutiveSameError,
     });
 
     return data;

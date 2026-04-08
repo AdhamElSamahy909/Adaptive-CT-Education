@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useLogin from "../features/authentication/useLogin";
+import logo from "../assets/logo.svg";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -17,7 +18,10 @@ function Login() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-dark_blue mb-2">Welcome</h1>
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <img src={logo} alt="ThinkFlow Logo" className="w-12 h-12" />
+              <h1 className="text-4xl font-bold text-dark_blue">Welcome</h1>
+            </div>
             <p className="text-gray-600">Sign in to your account</p>
           </div>
 

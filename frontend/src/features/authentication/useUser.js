@@ -26,5 +26,6 @@ export default function useUser() {
     userId: data?.id,
     refetchUser: refetch,
     solvedProblems: data?.solvedProblems,
+    role: data?.role,
   };
 }

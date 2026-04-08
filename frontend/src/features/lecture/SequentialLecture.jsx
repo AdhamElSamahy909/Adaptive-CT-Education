@@ -1,19 +1,12 @@
 import useUser from "../authentication/useUser";
-import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
-import SequentialLectureVisual from "./SequentialLectureVisual";
-import SequentialLectureVerbal from "./SequentialLectureVerbal";
+import SequentialLectureInstructor from "./SequentialLectureInstructor";
+import SequentialLectureStudent from "./SequentialLectureStudent";
 
 function SequentialLecture() {
-  const { userId } = useUser();
-  const { data } = useInferLearningStyle(userId);
-  const visualScore = data?.visualScore || 0;
-  const verbalScore = data?.verbalScore || 0;
+  const { role } = useUser();
 
-  if (visualScore > verbalScore) {
-    return <SequentialLectureVisual />;
-  } else {
-    return <SequentialLectureVerbal />;
-  }
+  if (role === "student") return <SequentialLectureStudent />;
+  else return <SequentialLectureInstructor />;
 }
 
 export default SequentialLecture;

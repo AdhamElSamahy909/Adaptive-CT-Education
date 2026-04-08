@@ -6,7 +6,8 @@ const axiosInstance = require("../lib/axiosInstance");
 exports.signup = async (req, res, next) => {
   try {
     console.log("Req.body: ", req.body);
-    const { firstName, lastName, email, password, passwordConfirm } = req.body;
+    const { firstName, lastName, email, password, passwordConfirm, role } =
+      req.body;
 
     const existingUser = await User.findOne({ email: email });
 
@@ -20,19 +21,22 @@ exports.signup = async (req, res, next) => {
       email: email,
       password: password,
       passwordConfirm: passwordConfirm,
+      role: role,
     });
 
-    const difficultyNetworkResponse = await axiosInstance.post(
-      "/initialize-difficulty-network",
-      {
-        user_id: user._id.toString(),
-      },
-    );
+    if (role === "student") {
+      const difficultyNetworkResponse = await axiosInstance.post(
+        "/initialize-difficulty-network",
+        {
+          user_id: user._id.toString(),
+        },
+      );
 
-    console.log(
-      "Difficulty network initialized successfully: ",
-      difficultyNetworkResponse.data,
-    );
+      console.log(
+        "Difficulty network initialized successfully: ",
+        difficultyNetworkResponse.data,
+      );
+    }
 
     const accessToken = jwt.sign(
       {
@@ -143,6 +147,17 @@ exports.checkSessionStatus = (req, res) => {
     id: req.user.id,
     lastPreferredLearningStyle: req.user.lastPreferredLearningStyle,
     solvedProblems: req.user.problemsSolved,
+    role: req.user.role,
   });
   return;
+};
+
+exports.logout = (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+  return res.status(200).json({ message: "Logged out successfully" });
 };

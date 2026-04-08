@@ -1,19 +1,12 @@
 import useUser from "../authentication/useUser";
-import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
-import ConditionalLectureVisual from "./ConditionalLectureVisual";
-import ConditionalLectureVerbal from "./ConditionalLectureVerbal";
+import ConditionalsLectureInstructor from "./ConditionalsLectureInstructor";
+import ConditionalsLectureStudent from "./ConditionalsLectureStudent";
 
 function ConditionalsLecture() {
-  const { userId } = useUser();
-  const { data } = useInferLearningStyle(userId);
-  const visualScore = data?.visualScore || 0;
-  const verbalScore = data?.verbalScore || 0;
+  const { role } = useUser();
 
-  if (visualScore > verbalScore) {
-    return <ConditionalLectureVisual />;
-  } else {
-    return <ConditionalLectureVerbal />;
-  }
+  if (role === "student") return <ConditionalsLectureStudent />;
+  else return <ConditionalsLectureInstructor />;
 }
 
 export default ConditionalsLecture;
