@@ -93,3 +93,5 @@ function getValidStepTexts(doc) {
 const Exercise = mongoose.model("Exercise", exerciseSchema);
 
 module.exports = Exercise;
+
+// generate another 9 sequential exercises, 3 for each level: easy, medium, and hard

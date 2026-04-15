@@ -5,6 +5,7 @@ import useUpdateExercise from "./useUpdateExercise";
 import useDeleteExercise from "./useDeleteExercise";
 import useCreateExercises from "./useCreateExercises";
 import Loader from "../../ui/Loader";
+import useCreateGuide from "./useCreateGuide";
 
 const emptyExercise = {
   title: "",
@@ -25,6 +26,7 @@ function LoopsExerciseInstructorsPage() {
   const { updateExercise, isLoading: isUpdating } = useUpdateExercise();
   const { deleteExercise, isLoading: isDeleting } = useDeleteExercise();
   const { createExercises, isLoading: isCreating } = useCreateExercises();
+  const { createGuide, isLoading: isCreatingGuide } = useCreateGuide();
 
   const [mode, setMode] = useState("view"); // "view" or "edit"
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -600,6 +602,33 @@ function LoopsExerciseInstructorsPage() {
             </button>
           </div>
         </section>
+
+        {/* Generate Guide Button */}
+        <div className="mb-4">
+          <button
+            onClick={() =>
+              createGuide({
+                title: currentEx?.title,
+                description: currentEx?.description,
+                testCases: currentEx?.testCases
+                  .map(
+                    (tc) =>
+                      `Input: ${tc.input}\nExpected Output: ${tc.output}\nExplanation: ${tc.explanation}`,
+                  )
+                  .join("\n\n"),
+                topic: currentEx?.topic || "loops",
+              })
+            }
+            disabled={isCreatingGuide}
+            className={`px-6 py-2 font-bold rounded-lg transition-colors ${
+              isCreatingGuide
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-medium_blue text-white hover:bg-dark_blue"
+            }`}
+          >
+            {isCreatingGuide ? "Generating Guide..." : "Generate Guide"}
+          </button>
+        </div>
 
         {/* Verbal Steps */}
         <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-medium_blue">

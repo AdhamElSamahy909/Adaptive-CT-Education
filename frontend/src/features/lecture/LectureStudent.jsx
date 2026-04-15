@@ -1,7 +1,5 @@
 import useUser from "../authentication/useUser";
 import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
-import LoopsLectureVisual from "./LoopsLectureVisual";
-import LoopsLectureVerbal from "./LoopsLectureVerbal";
 import { useState } from "react";
 import useUpdateLearningStyle from "../bayesianNetworks/useUpdateLearningStyle";
 import useGetLecture from "./useGetLecture";

@@ -590,7 +590,7 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: "150kb" }));
+app.use(express.json({ limit: "250kb" }));
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoutes);
@@ -712,39 +712,39 @@ app.use("/api/v1/lectures", lectureRoutes);
 //   }
 // });
 
-app.post("/api/v1/detect-struggling", async (req, res) => {
-  const { userId, attemptNum, timeDelta, testProgress } = req.body;
-  console.log("Received struggling detection request for user: ", userId);
-  console.log("Data to be used for struggling detection: ", {
-    attemptNum,
-    timeDelta,
-    testProgress,
-  });
+// app.post("/api/v1/detect-struggling", async (req, res) => {
+//   const { userId, attemptNum, timeDelta, testProgress } = req.body;
+//   console.log("Received struggling detection request for user: ", userId);
+//   console.log("Data to be used for struggling detection: ", {
+//     attemptNum,
+//     timeDelta,
+//     testProgress,
+//   });
 
-  try {
-    const response = await axiosInstance.post("/detect-struggling", {
-      user_id: userId,
-      attempt_num: attemptNum,
-      time_delta: timeDelta,
-      test_progress: testProgress,
-    });
+//   try {
+//     const response = await axiosInstance.post("/detect-struggling", {
+//       user_id: userId,
+//       attempt_num: attemptNum,
+//       time_delta: timeDelta,
+//       test_progress: testProgress,
+//     });
 
-    console.log(
-      "Received response from struggling detection microservice: ",
-      response.data,
-    );
+//     console.log(
+//       "Received response from struggling detection microservice: ",
+//       response.data,
+//     );
 
-    res.json({
-      success: true,
-      struggling: response.data.struggling,
-    });
-  } catch (error) {
-    console.error("Error during struggling detection: ", error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
+//     res.json({
+//       success: true,
+//       struggling: response.data.struggling,
+//     });
+//   } catch (error) {
+//     console.error("Error during struggling detection: ", error);
+//     res.status(500).json({
+//       success: false,
+//       error: error.message,
+//     });
+//   }
+// });
 
 module.exports = app;

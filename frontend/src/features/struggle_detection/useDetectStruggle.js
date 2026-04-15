@@ -14,7 +14,7 @@ async function detectStruggleApi(
 ) {
   try {
     console.log("Detecting struggle for user: ", userId);
-    const { data } = await axiosInstance.post("/detect-struggling", {
+    const { data } = await axiosInstance.post("/exercises/detect-struggling", {
       userId,
       attemptNum,
       timeDelta,

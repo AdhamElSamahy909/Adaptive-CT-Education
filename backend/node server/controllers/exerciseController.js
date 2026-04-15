@@ -195,3 +195,69 @@ exports.executeExercise = async (req, res, next) => {
     });
   }
 };
+
+exports.detectStruggling = async (req, res) => {
+  const { userId, attemptNum, timeDelta, testProgress } = req.body;
+  console.log("Received struggling detection request for user: ", userId);
+  console.log("Data to be used for struggling detection: ", {
+    attemptNum,
+    timeDelta,
+    testProgress,
+  });
+
+  try {
+    const response = await axiosInstance.post("/detect-struggling", {
+      user_id: userId,
+      attempt_num: attemptNum,
+      time_delta: timeDelta,
+      test_progress: testProgress,
+    });
+
+    console.log(
+      "Received response from struggling detection microservice: ",
+      response.data,
+    );
+
+    res.json({
+      success: true,
+      struggling: response.data.struggling,
+    });
+  } catch (error) {
+    console.error("Error during struggling detection: ", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.get10RandomExercises = async (req, res) => {
+  try {
+    const loopsExercises = await Exercise.aggregate([
+      { $match: { topic: "loops" } },
+      { $sample: { size: 4 } },
+    ]);
+    const conditionalsExercises = await Exercise.aggregate([
+      { $match: { topic: "conditionals" } },
+      { $sample: { size: 3 } },
+    ]);
+    const sequentailExercises = await Exercise.aggregate([
+      { $match: { topic: "sequential" } },
+      { $sample: { size: 3 } },
+    ]);
+
+    return res.status(200).json({
+      exercises: [
+        ...loopsExercises,
+        ...conditionalsExercises,
+        ...sequentailExercises,
+      ],
+    });
+  } catch (error) {
+    console.error("Error fetching random exercises: ", error);
+    res.status(500).json({
+      success: false,
+      error: "An error occurred while fetching random exercises",
+    });
+  }
+};
