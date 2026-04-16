@@ -10,6 +10,7 @@ import useInferLearningStyle from "../bayesianNetworks/useInferLearningStyle";
 import { useNavigate } from "react-router-dom";
 import useDetectStruggle from "../struggle_detection/useDetectStruggle";
 import useGetExercises from "./useGetExercises";
+import useGetTopicName from "../../hooks/useGetTopicName";
 
 // const exercises = [
 //   {
@@ -820,13 +821,14 @@ import useGetExercises from "./useGetExercises";
 //   },
 // ];
 
-function LoopsExerciseStudentsPage() {
+function ExerciseStudents() {
   const { userId, solvedProblems } = useUser();
+  const topic = useGetTopicName();
   const {
     exercises,
     isLoading: exercisesLoading,
     error: exercisesError,
-  } = useGetExercises();
+  } = useGetExercises(topic);
   const {
     easyScore,
     mediumScore,
@@ -1584,4 +1586,4 @@ function LoopsExerciseStudentsPage() {
   );
 }
 
-export default LoopsExerciseStudentsPage;
+export default ExerciseStudents;

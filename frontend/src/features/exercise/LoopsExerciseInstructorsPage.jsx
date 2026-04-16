@@ -6,6 +6,7 @@ import useDeleteExercise from "./useDeleteExercise";
 import useCreateExercises from "./useCreateExercises";
 import Loader from "../../ui/Loader";
 import useCreateGuide from "./useCreateGuide";
+import useGetTopicName from "../../hooks/useGetTopicName";
 
 const emptyExercise = {
   title: "",
@@ -22,13 +23,14 @@ const emptyExercise = {
 
 function LoopsExerciseInstructorsPage() {
   const navigate = useNavigate();
-  const { exercises, isLoading, error } = useGetExercises();
+  const topic = useGetTopicName();
+  const { exercises, isLoading, error } = useGetExercises(topic);
   const { updateExercise, isLoading: isUpdating } = useUpdateExercise();
   const { deleteExercise, isLoading: isDeleting } = useDeleteExercise();
   const { createExercises, isLoading: isCreating } = useCreateExercises();
   const { createGuide, isLoading: isCreatingGuide } = useCreateGuide();
 
-  const [mode, setMode] = useState("view"); // "view" or "edit"
+  const [mode, setMode] = useState("view");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [editingExercises, setEditingExercises] = useState([]);
   const [newExercises, setNewExercises] = useState([]);

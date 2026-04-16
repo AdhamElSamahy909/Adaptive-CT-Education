@@ -1,9 +1,22 @@
 const Exercise = require("../models/exercise");
 
-exports.getExercises = async (req, res) => {
+exports.getAllExercises = async (req, res) => {
   try {
-    const { topic } = req.query;
     const exercises = await Exercise.find().lean();
+
+    return res.status(200).json({ exercises });
+  } catch (error) {
+    console.error("Error fetching exercises:", error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while fetching exercises" });
+  }
+};
+
+exports.getExercisesByTopic = async (req, res) => {
+  try {
+    const { topicName } = req.params;
+    const exercises = await Exercise.find({ topic: topicName }).lean();
 
     return res.status(200).json({ exercises });
   } catch (error) {

@@ -5,13 +5,14 @@ import useUpdateExercise from "./useUpdateExercise";
 import useDeleteExercise from "./useDeleteExercise";
 import useCreateExercises from "./useCreateExercises";
 import Loader from "../../ui/Loader";
+import useCreateGuide from "./useCreateGuide";
 import useGetTopicName from "../../hooks/useGetTopicName";
 
 const emptyExercise = {
   title: "",
   description: "",
   difficulty: "easy",
-  topic: "sequential",
+  topic: "loops",
   starterCode: "",
   testCases: [
     { input: "", output: "", explanation: "", outputMultiline: false },
@@ -20,15 +21,16 @@ const emptyExercise = {
   visualSteps: [{ text: "", shape: "oval", directedTowards: [] }],
 };
 
-function SequentialExerciseInstructorsPage() {
+function ExercisesInstructor() {
   const navigate = useNavigate();
   const topic = useGetTopicName();
   const { exercises, isLoading, error } = useGetExercises(topic);
   const { updateExercise, isLoading: isUpdating } = useUpdateExercise();
   const { deleteExercise, isLoading: isDeleting } = useDeleteExercise();
   const { createExercises, isLoading: isCreating } = useCreateExercises();
+  const { createGuide, isLoading: isCreatingGuide } = useCreateGuide();
 
-  const [mode, setMode] = useState("view"); // "view" or "edit"
+  const [mode, setMode] = useState("view");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [editingExercises, setEditingExercises] = useState([]);
   const [newExercises, setNewExercises] = useState([]);
@@ -92,9 +94,11 @@ function SequentialExerciseInstructorsPage() {
     };
 
     if (isNewExercise) {
+      // Create new exercise and navigate back to list
       createExercises({ exercises: [exerciseData] });
       navigate(-1);
     } else {
+      // Update existing exercise
       updateExercise({
         exerciseId: currentEx._id,
         exerciseData,
@@ -108,6 +112,7 @@ function SequentialExerciseInstructorsPage() {
     }
   };
 
+  // Handlers for test cases
   const handleAddTestCase = () =>
     updateEx("testCases", [
       ...currentEx.testCases,
@@ -126,6 +131,7 @@ function SequentialExerciseInstructorsPage() {
       currentEx.testCases.filter((_, i) => i !== index),
     );
 
+  // Handlers for verbal steps
   const handleAddVerbalStep = () =>
     updateEx("verbalSteps", [...currentEx.verbalSteps, ""]);
 
@@ -141,6 +147,7 @@ function SequentialExerciseInstructorsPage() {
       currentEx.verbalSteps.filter((_, i) => i !== index),
     );
 
+  // Handlers for visual steps
   const handleAddVisualStep = () => {
     updateEx("visualSteps", [
       ...currentEx.visualSteps,
@@ -294,62 +301,63 @@ function SequentialExerciseInstructorsPage() {
         ← Back
       </button>
       <div className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-        <div className="flex justify-between items-end w-full">
-          <div>
+        <div className="flex flex-col w-full">
+          <div className="flex items-center justify-between w-full">
             <h1 className="text-3xl font-bold text-dark_blue">
               {isNewExercise ? "Create New Exercise" : "Edit Exercise"}
             </h1>
-            <p className="text-medium_blue mt-2">
-              {isNewExercise
-                ? "Design a new computational thinking challenge."
-                : "Update the exercise details below."}
-            </p>
           </div>
-          <div className="flex items-center gap-2 pb-1">
-            {(() => {
-              const total = exercises.length + newExercises.length;
-              const pageSize = 5;
-              const startIdx = Math.floor(currentIndex / pageSize) * pageSize;
-              const endIdx = Math.min(startIdx + pageSize, total);
+          <p className="text-medium_blue mt-2">
+            {isNewExercise
+              ? "Design a new computational thinking challenge."
+              : "Update the exercise details below."}
+          </p>
+        </div>
 
-              return (
-                <>
-                  <button
-                    onClick={() => setCurrentIndex(Math.max(0, startIdx - 1))}
-                    disabled={startIdx === 0}
-                    className={`text-lg font-bold px-1 ${startIdx === 0 ? "text-gray-300 cursor-not-allowed" : "text-medium_blue hover:text-dark_blue"}`}
-                    title="Previous exercises"
-                  >
-                    &lsaquo;
-                  </button>
-                  {Array.from({ length: endIdx - startIdx }).map((_, i) => {
-                    const idx = startIdx + i;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`w-3 h-3 rounded-full transition-colors ${
-                          currentIndex === idx
-                            ? "bg-dark_blue scale-125"
-                            : "bg-gray-300 hover:bg-medium_blue"
-                        }`}
-                        title={`Exercise ${idx + 1}`}
-                        aria-label={`Go to exercise ${idx + 1}`}
-                      />
-                    );
-                  })}
-                  <button
-                    onClick={() => setCurrentIndex(Math.min(total - 1, endIdx))}
-                    disabled={endIdx === total}
-                    className={`text-lg font-bold px-1 ${endIdx === total ? "text-gray-300 cursor-not-allowed" : "text-medium_blue hover:text-dark_blue"}`}
-                    title="Next exercises"
-                  >
-                    &rsaquo;
-                  </button>
-                </>
-              );
-            })()}
-          </div>
+        <div className="flex items-center gap-2">
+          {(() => {
+            const total = exercises.length + newExercises.length;
+            const pageSize = 5;
+            const startIdx = Math.floor(currentIndex / pageSize) * pageSize;
+            const endIdx = Math.min(startIdx + pageSize, total);
+
+            return (
+              <>
+                <button
+                  onClick={() => setCurrentIndex(Math.max(0, startIdx - 1))}
+                  disabled={startIdx === 0}
+                  className={`text-lg font-bold px-1 ${startIdx === 0 ? "text-gray-300 cursor-not-allowed" : "text-medium_blue hover:text-dark_blue"}`}
+                  title="Previous exercises"
+                >
+                  &lsaquo;
+                </button>
+                {Array.from({ length: endIdx - startIdx }).map((_, i) => {
+                  const idx = startIdx + i;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        currentIndex === idx
+                          ? "bg-dark_blue scale-125"
+                          : "bg-gray-300 hover:bg-medium_blue"
+                      }`}
+                      title={`Exercise ${idx + 1}`}
+                      aria-label={`Go to exercise ${idx + 1}`}
+                    />
+                  );
+                })}
+                <button
+                  onClick={() => setCurrentIndex(Math.min(total - 1, endIdx))}
+                  disabled={endIdx === total}
+                  className={`text-lg font-bold px-1 ${endIdx === total ? "text-gray-300 cursor-not-allowed" : "text-medium_blue hover:text-dark_blue"}`}
+                  title="Next exercises"
+                >
+                  &rsaquo;
+                </button>
+              </>
+            );
+          })()}
         </div>
       </div>
 
@@ -411,7 +419,7 @@ function SequentialExerciseInstructorsPage() {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-medium_blue bg-offwite"
                 value={currentEx?.title}
                 onChange={(e) => updateEx("title", e.target.value)}
-                placeholder="e.g., Welcome to Sequential Programming"
+                placeholder="e.g., Sum of Even Numbers"
               />
             </div>
 
@@ -438,6 +446,8 @@ function SequentialExerciseInstructorsPage() {
                 value={currentEx?.topic}
                 onChange={(e) => updateEx("topic", e.target.value)}
               >
+                <option value="loops">Loops</option>
+                <option value="conditionals">Conditionals</option>
                 <option value="sequential">Sequential</option>
               </select>
             </div>
@@ -595,6 +605,33 @@ function SequentialExerciseInstructorsPage() {
           </div>
         </section>
 
+        {/* Generate Guide Button */}
+        <div className="mb-4">
+          <button
+            onClick={() =>
+              createGuide({
+                title: currentEx?.title,
+                description: currentEx?.description,
+                testCases: currentEx?.testCases
+                  .map(
+                    (tc) =>
+                      `Input: ${tc.input}\nExpected Output: ${tc.output}\nExplanation: ${tc.explanation}`,
+                  )
+                  .join("\n\n"),
+                topic: currentEx?.topic || "loops",
+              })
+            }
+            disabled={isCreatingGuide}
+            className={`px-6 py-2 font-bold rounded-lg transition-colors ${
+              isCreatingGuide
+                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                : "bg-medium_blue text-white hover:bg-dark_blue"
+            }`}
+          >
+            {isCreatingGuide ? "Generating Guide..." : "Generate Guide"}
+          </button>
+        </div>
+
         {/* Verbal Steps */}
         <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-medium_blue">
           <div className="mb-4 border-b pb-2">
@@ -678,7 +715,7 @@ function SequentialExerciseInstructorsPage() {
                       onChange={(e) =>
                         handleUpdateVisualStep(vIndex, "text", e.target.value)
                       }
-                      placeholder="e.g., Start, or x > 0?"
+                      placeholder="e.g., Start, or i < N?"
                     />
                   </div>
                   <div>
@@ -832,4 +869,4 @@ function SequentialExerciseInstructorsPage() {
   );
 }
 
-export default SequentialExerciseInstructorsPage;
+export default ExercisesInstructor;

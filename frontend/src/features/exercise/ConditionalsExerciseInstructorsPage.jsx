@@ -5,6 +5,7 @@ import useUpdateExercise from "./useUpdateExercise";
 import useDeleteExercise from "./useDeleteExercise";
 import useCreateExercises from "./useCreateExercises";
 import Loader from "../../ui/Loader";
+import useGetTopicName from "../../hooks/useGetTopicName";
 
 const emptyExercise = {
   title: "",
@@ -21,7 +22,8 @@ const emptyExercise = {
 
 function ConditionalsExerciseInstructorsPage() {
   const navigate = useNavigate();
-  const { exercises, isLoading, error } = useGetExercises();
+  const topic = useGetTopicName();
+  const { exercises, isLoading, error } = useGetExercises(topic);
   const { updateExercise, isLoading: isUpdating } = useUpdateExercise();
   const { deleteExercise, isLoading: isDeleting } = useDeleteExercise();
   const { createExercises, isLoading: isCreating } = useCreateExercises();

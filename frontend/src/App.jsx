@@ -12,10 +12,11 @@ import AppLayout from "./ui/AppLayout";
 // import LoopsLecture from "./features/lecture/LoopsLecture";
 // import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
 // import SequentialLecture from "./features/lecture/SequentialLecture";
-import LoopsExercise from "./features/exercise/LoopsExercise";
-import ConditionalsExercise from "./features/exercise/ConditionalsExercise";
-import SequentialExercise from "./features/exercise/SequentialExercise";
+// import LoopsExercise from "./features/exercise/LoopsExercise";
+// import ConditionalsExercise from "./features/exercise/ConditionalsExercise";
+// import SequentialExercise from "./features/exercise/SequentialExercise";
 import LecturePage from "./pages/LecturePage";
+import ExercisePage from "./pages/ExercisePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,19 +59,13 @@ function App() {
             <Route index element={<Navigate replace to="home" />} />
             <Route path="home" element={<Home />} />
             <Route path="loops" element={<Loops />} />
-            <Route path="loops/exercise" element={<LoopsExercise />} />
+            <Route path="loops/exercise" element={<ExercisePage />} />
             <Route path="loops/lecture" element={<LecturePage />} />
             <Route path="conditionals" element={<Conditionals />} />
-            <Route
-              path="conditionals/exercise"
-              element={<ConditionalsExercise />}
-            />
+            <Route path="conditionals/exercise" element={<ExercisePage />} />
             <Route path="conditionals/lecture" element={<LecturePage />} />
             <Route path="sequential" element={<Sequential />} />
-            <Route
-              path="sequential/exercise"
-              element={<SequentialExercise />}
-            />
+            <Route path="sequential/exercise" element={<ExercisePage />} />
             <Route path="sequential/lecture" element={<LecturePage />} />
           </Route>
           <Route path="login" element={<Login />} />

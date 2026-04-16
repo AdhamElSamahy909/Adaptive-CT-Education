@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import useGetExercises from "../exercise/useGetExercises";
 import Loader from "../../ui/Loader";
+import useGetAllExercises from "../exercise/useGetAllExercises";
 
 function InstructorHomePage() {
-  const { exercises, isLoading, error } = useGetExercises();
+  const { exercises, isLoading, error } = useGetAllExercises();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredExercises = exercises.filter(

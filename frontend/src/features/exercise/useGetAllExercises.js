@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 
-async function getExercisesApi(topic) {
+async function getAllExercisesApi() {
   try {
-    const { data } = await axiosInstance.get(`/exercises/topic/${topic}`);
+    const { data } = await axiosInstance.get("/exercises");
     return data.exercises || [];
   } catch (error) {
     throw new Error(
@@ -12,16 +12,15 @@ async function getExercisesApi(topic) {
   }
 }
 
-export default function useGetExercises(topic) {
+export default function useGetAllExercises() {
   const {
     data: exercises = [],
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["exercises", topic],
-    queryFn: () => getExercisesApi(topic),
-    enabled: !!topic,
+    queryKey: ["exercises"],
+    queryFn: getAllExercisesApi,
   });
 
   return { exercises, isLoading, error, refetch };

@@ -4,21 +4,6 @@ import toast from "react-hot-toast";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
 
-// async function createGuideApi(title, description, testCases, topic) {
-//   const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
-//   try {
-//     const prompt = `Generate a simple step-by-step guide, with no details, to solve the following coding problem using ${topic.toLowerCase()}:\n\nTitle: ${title}\n\nDescription: ${description}\n\nTest Cases:\n${testCases}`;
-//     console.log("Sending prompt to Gemini API: ", prompt);
-//     const result = await model.generateContent(prompt);
-//     const response = await result.response;
-//     const text = response.text();
-//     return text;
-//   } catch (error) {
-//     console.error(error);
-//     throw new Error(error?.message || "Generating guide failed");
-//   }
-// }
-
 async function createGuideApi(title, description, testCases, topic) {
   try {
     const model = genAI.getGenerativeModel({
