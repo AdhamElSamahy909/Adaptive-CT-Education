@@ -9,12 +9,6 @@ import Conditionals from "./pages/Conditionals";
 import Sequential from "./pages/Sequential";
 import ProtectedRoute from "./ui/protectedRoute";
 import AppLayout from "./ui/AppLayout";
-// import LoopsLecture from "./features/lecture/LoopsLecture";
-// import ConditionalsLecture from "./features/lecture/ConditionalsLecture";
-// import SequentialLecture from "./features/lecture/SequentialLecture";
-// import LoopsExercise from "./features/exercise/LoopsExercise";
-// import ConditionalsExercise from "./features/exercise/ConditionalsExercise";
-// import SequentialExercise from "./features/exercise/SequentialExercise";
 import LecturePage from "./pages/LecturePage";
 import ExercisePage from "./pages/ExercisePage";
 
