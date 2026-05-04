@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useColdStart from "./useColdStart";
 import useUser from "../authentication/useUser";
+import useInitializeDifficulty from "./useInitializeDifficulty";
 
 const ShapeCell = ({ shape, fill }) => {
   const renderShape = () => {
@@ -430,6 +431,7 @@ function ColdStartChallenge() {
   const [challenge1Answer, setChallenge1Answer] = useState(null);
   const [challenge2Answer, setChallenge2Answer] = useState(null);
   const { submitColdStart } = useColdStart();
+  const { initializeDifficulty } = useInitializeDifficulty();
   const { userId } = useUser();
 
   const handleChallenge1Complete = () => {
@@ -448,6 +450,7 @@ function ColdStartChallenge() {
       challenge1Answer,
       challenge2Answer,
     });
+    initializeDifficulty({ userId });
   };
 
   return (

@@ -15,8 +15,13 @@ router.post(
   bayesianNetworkController.updateLearningStyle,
 );
 
+router.post(
+  "/difficulty/initialize",
+  bayesianNetworkController.initializeDifficultyNetwork,
+);
+
 router.get(
-  "/difficulty/infer/:userId",
+  "/difficulty/infer/:userId/topic/:topic",
   bayesianNetworkController.inferDifficulty,
 );
 

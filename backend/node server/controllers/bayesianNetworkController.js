@@ -110,13 +110,36 @@ exports.updateLearningStyle = async (req, res) => {
   }
 };
 
+exports.initializeDifficultyNetwork = async (req, res) => {
+  try {
+    const { userId, topic } = req.body;
+    await axiosInstance.post("/initialize-difficulty-network", {
+      user_id: userId,
+      topic,
+    });
+
+    console.log(
+      "Difficulty network initialized successfully for user:",
+      userId,
+    );
+    res
+      .status(200)
+      .json({ message: "Difficulty network initialized successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while initializing the difficulty network",
+    });
+  }
+};
+
 exports.inferDifficulty = async (req, res) => {
   console.log(
     "Received request to infer difficulty level for user:",
     req.params.userId,
   );
   try {
-    const { userId } = req.params;
+    const { userId, topic } = req.params;
     const user_id = userId;
 
     const response = await axiosInstance.get(`/infer-difficulty/${user_id}`);

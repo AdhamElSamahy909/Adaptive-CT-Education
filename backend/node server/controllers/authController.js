@@ -24,19 +24,19 @@ exports.signup = async (req, res, next) => {
       role: role,
     });
 
-    if (role === "student") {
-      const difficultyNetworkResponse = await axiosInstance.post(
-        "/initialize-difficulty-network",
-        {
-          user_id: user._id.toString(),
-        },
-      );
+    // if (role === "student") {
+    //   const difficultyNetworkResponse = await axiosInstance.post(
+    //     "/initialize-difficulty-network",
+    //     {
+    //       user_id: user._id.toString(),
+    //     },
+    //   );
 
-      console.log(
-        "Difficulty network initialized successfully: ",
-        difficultyNetworkResponse.data,
-      );
-    }
+    //   console.log(
+    //     "Difficulty network initialized successfully: ",
+    //     difficultyNetworkResponse.data,
+    //   );
+    // }
 
     const accessToken = jwt.sign(
       {

@@ -96,7 +96,7 @@ exports.updateExercise = async (req, res) => {
 };
 
 exports.executeExercise = async (req, res, next) => {
-  const { code, problemId, userId, timeTaken, problemLevel } = req.body;
+  const { code, problemId, userId, timeTaken, problemLevel, topic } = req.body;
   try {
     const problem = await Exercise.findById(problemId);
     // const problem = exercises.find((exercise) => exercise.id === problemId);
@@ -189,6 +189,7 @@ exports.executeExercise = async (req, res, next) => {
       const updateResponse = await axiosInstance.post("/update-difficulty", {
         user_id: userId,
         performance_signal: performanceSignal,
+        topic,
       });
 
       console.log("Difficulty update response: ", updateResponse.data);

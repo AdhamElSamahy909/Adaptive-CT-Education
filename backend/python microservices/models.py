@@ -32,6 +32,7 @@ class ExecuteCodeResponse(BaseModel):
 
 class DifficultyInitialize(BaseModel):
     user_id: str
+    topic: str
 
 class DifficultyPrediction(BaseModel):
     user_id: str
@@ -43,6 +44,7 @@ class DifficultyPrediction(BaseModel):
 class DifficultyUpdate(BaseModel):
     user_id: str
     performance_signal: str # "EasySignal", "MediumSignal", "HardSignal"
+    topic: str
 
 class StrugglingDetectionResponse(BaseModel):
     user_id: str

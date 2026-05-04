@@ -13,8 +13,12 @@ import uuid
 from test_runner import create_test_runner
 import traceback
 from model.load_model import load_detector_model
-from typing import Dict, List
+from typing import Dict, List, Optional
 import torch
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -43,8 +47,11 @@ async def startup_db_client():
     await client.admin.command('ping')
     print("Connected to MongoDB!")
 
-async def _get_user_doc(user_id: str, collection: str) -> dict:
-    doc = await db[collection].find_one({"user_id": user_id})
+async def _get_user_doc(user_id: str, collection: str, topic: Optional[str]) -> dict:
+    if topic:
+        doc = await db[collection].find_one({"user_id": user_id, "topic": topic})
+    else:
+        doc = await db[collection].find_one({"user_id": user_id})
     if not doc:
         raise HTTPException(
             status_code=404,
@@ -52,14 +59,21 @@ async def _get_user_doc(user_id: str, collection: str) -> dict:
         )
     return doc
 
-async def _save_model(user_id: str, model, collection: str) -> None:
+async def _save_model(user_id: str, model, collection: str, topic: Optional[str]) -> None:
     network_type = ("learning_style" if collection == LEARNING_STYLE_COLLECTION else "difficulty")
     doc = model_to_doc(user_id, model.cpds, network_type=network_type)
-    await db[collection].update_one(
-        {"user_id": user_id},
-        {"$set": doc},
-        upsert=True
-    )
+    if topic:
+        await db[collection].update_one(
+            {"user_id": user_id, "topic": topic},
+            {"$set": doc},
+            upsert=True
+        )
+    else:
+        await db[collection].update_one(
+            {"user_id": user_id},
+            {"$set": doc},
+            upsert=True
+        )
 
 @app.post("/cold-start", response_model=StylePrediction)
 async def cold_start(data: ColdStartInput):
@@ -75,8 +89,9 @@ async def cold_start(data: ColdStartInput):
         print(f"Inference result: {posterior}")
 
         model = update_prior(model, posterior)
-        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION)
+        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION, None)
     except Exception as e:
+        logger.exception("Inference failed for user %s", data.user_id)
         raise HTTPException(status_code=400, detail=str(e))
     
     predicted = max(posterior, key=posterior.get)
@@ -218,16 +233,16 @@ async def run_test_case_in_docker(request: ExecuteCodeResponse):
 async def initialize_difficulty_network(data: DifficultyInitialize):
     try:
         model = build_difficulty_model()
-        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION)
+        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION, data.topic)
 
     except Exception as e:
         print(f"Error initializing difficulty network for user {data.user_id}: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=str(e))
     
-@app.get("/infer-difficulty/{user_id}", response_model=DifficultyPrediction)
-async def infer_difficulty(user_id: str):
-    doc = await _get_user_doc(user_id, DIFFICULTY_COLLECTION)
+@app.get("/infer-difficulty/{user_id}/{topic}", response_model=DifficultyPrediction)
+async def infer_difficulty(user_id: str, topic: str):
+    doc = await _get_user_doc(user_id, DIFFICULTY_COLLECTION, topic)
 
     prior_cpd = next(c for c in doc["cpds"] if c["variable"] == "DifficultyLevel")
     cpd = dict_to_cpd(prior_cpd)
@@ -240,7 +255,7 @@ async def infer_difficulty(user_id: str):
 
 @app.post("/update-difficulty", response_model=DifficultyPrediction)
 async def update_difficulty(data: DifficultyUpdate):
-    doc = await _get_user_doc(data.user_id, DIFFICULTY_COLLECTION)
+    doc = await _get_user_doc(data.user_id, DIFFICULTY_COLLECTION, data.topic)
     model = load_difficulty_model(doc)
     evidence = {"PerformanceSignal": data.performance_signal}
 
@@ -248,7 +263,7 @@ async def update_difficulty(data: DifficultyUpdate):
         posterior = infer_difficulty_level(model, evidence)
 
         model = update_difficulty_prior(model, posterior)
-        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION)
+        await _save_model(data.user_id, model, DIFFICULTY_COLLECTION, data.topic)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     

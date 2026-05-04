@@ -26,7 +26,7 @@ function ExerciseStudents() {
     hardScore,
     predictedDifficulty,
     refetch: refetchDifficulty,
-  } = useInferDifficulty(userId);
+  } = useInferDifficulty(userId, topic);
   const { detectStruggle, data: struggleDetectionData } = useDetectStruggle();
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [status, setStatus] = useState("idle");
