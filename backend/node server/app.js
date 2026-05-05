@@ -8,6 +8,10 @@ const cors = require("cors");
 const axiosInstance = require("./lib/axiosInstance");
 const User = require("./models/user");
 const Exercise = require("./models/exercise");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 
 const app = express();
 
@@ -19,6 +23,16 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+const limiter = rateLimit({
+  max: 1000,
+  windowMs: 60 * 60 * 1000,
+  message: "Too many requests from this IP, please try again in an hour!",
+});
+app.use("/api", limiter);
+
+app.use(mongoSanitize());
+app.use(hpp());
 
 app.use(express.json({ limit: "250kb" }));
 app.use(cookieParser());
