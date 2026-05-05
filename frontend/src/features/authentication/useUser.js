@@ -27,5 +27,6 @@ export default function useUser() {
     refetchUser: refetch,
     solvedProblems: data?.solvedProblems,
     role: data?.role,
+    styleChange: data?.styleChange,
   };
 }

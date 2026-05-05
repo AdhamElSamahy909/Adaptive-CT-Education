@@ -1,4 +1,6 @@
+const axiosInstance = require("../lib/axiosInstance");
 const Exercise = require("../models/exercise");
+const User = require("../models/user");
 
 exports.getAllExercises = async (req, res) => {
   try {

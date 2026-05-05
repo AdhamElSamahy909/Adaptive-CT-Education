@@ -16,6 +16,11 @@ router.post(
 );
 
 router.post(
+  "/learning-style/set-is-changed/:userId",
+  bayesianNetworkController.setStyleChanged,
+);
+
+router.post(
   "/difficulty/initialize",
   bayesianNetworkController.initializeDifficultyNetwork,
 );

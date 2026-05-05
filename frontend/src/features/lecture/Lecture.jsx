@@ -14,7 +14,7 @@ function Lecture({
   handleForwardClick,
   handleBackClick,
 }) {
-  const { role } = useUser();
+  const { role, styleChange } = useUser();
   const {
     uploadLecture,
     isLoading: isUploading,

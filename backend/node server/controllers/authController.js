@@ -24,20 +24,6 @@ exports.signup = async (req, res, next) => {
       role: role,
     });
 
-    // if (role === "student") {
-    //   const difficultyNetworkResponse = await axiosInstance.post(
-    //     "/initialize-difficulty-network",
-    //     {
-    //       user_id: user._id.toString(),
-    //     },
-    //   );
-
-    //   console.log(
-    //     "Difficulty network initialized successfully: ",
-    //     difficultyNetworkResponse.data,
-    //   );
-    // }
-
     const accessToken = jwt.sign(
       {
         id: user._id,
@@ -148,6 +134,7 @@ exports.checkSessionStatus = (req, res) => {
     lastPreferredLearningStyle: req.user.lastPreferredLearningStyle,
     solvedProblems: req.user.problemsSolved,
     role: req.user.role,
+    styleChange: req.user.styleChange,
   });
   return;
 };

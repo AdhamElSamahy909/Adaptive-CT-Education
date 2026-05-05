@@ -126,6 +126,7 @@ function ExerciseStudents() {
         userId,
         timeTaken: (Date.now() - time.current) / 60000,
         problemLevel: selectedExercise?.difficulty,
+        topic,
       },
       {
         onSuccess: (data) => {
@@ -350,21 +351,36 @@ function ExerciseStudents() {
                       <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45 z-10"></div>
                     </div>
 
-                    {node.noPath.map((child, j) => (
-                      <div
-                        key={child.id}
-                        className="flex flex-col items-center w-full relative z-10"
-                      >
-                        {j > 0 && (
-                          <div className="h-6 w-0.5 bg-blue-500 relative">
-                            <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                    <div className="relative w-full flex flex-col items-center group">
+                      {node.noPath.map((child, j) => (
+                        <div
+                          key={child.id}
+                          className="flex flex-col items-center w-full relative z-10"
+                        >
+                          {j > 0 && (
+                            <div className="h-6 w-0.5 bg-blue-500 relative">
+                              <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-blue-500 transform rotate-45"></div>
+                            </div>
+                          )}
+                          <div className="px-4 py-2 border-2 border-blue-500 bg-blue-100 rounded-lg shadow-sm my-1 max-w-48 text-center text-blue-900 font-medium">
+                            {child.label}
                           </div>
-                        )}
-                        <div className="px-4 py-2 border-2 border-blue-500 bg-blue-100 rounded-lg shadow-sm my-1 max-w-48 text-center text-blue-900 font-medium">
-                          {child.label}
                         </div>
-                      </div>
-                    ))}
+                      ))}
+
+                      {/* Dashed Loop back line wrap-around for No path */}
+                      {node.noLoops && (
+                        <>
+                          <div className="absolute border-l-2 border-t-2 border-b-2 border-dashed border-red-500 opacity-80 -z-10 rounded-l-xl" style={{ right: 'calc(50% + 2rem)', top: '-5.25rem', bottom: '1.5rem', width: '4.5rem' }}>
+                            {/* Arrow head pointing back to the diamond */}
+                            <div className="absolute top-[-6px] right-[-2px] w-2.5 h-2.5 border-r-2 border-t-2 border-red-500 transform rotate-45"></div>
+                          </div>
+                          <div className="absolute top-1/2 right-[calc(50%+4.5rem)] transform -translate-y-1/2 text-red-600 text-[10px] font-bold px-2 py-0.5 whitespace-nowrap bg-white border border-red-200 rounded z-20 shadow-sm">
+                            ↺ Loop Back
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {/* The Loop branch (Yes) going down parallel on the right */}

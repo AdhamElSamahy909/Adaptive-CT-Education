@@ -99,7 +99,7 @@ async def cold_start(data: ColdStartInput):
 
 @app.post("/update-learning-style", response_model=StylePrediction)
 async def update_from_behavior(data: BehaviorUpdate):
-    doc = await _get_user_doc(data.user_id, LEARNING_STYLE_COLLECTION)
+    doc = await _get_user_doc(data.user_id, LEARNING_STYLE_COLLECTION, None)
     model = load_model(doc)
     evidence = {"BehaviorSignal": data.behavior_signal}
 
@@ -107,7 +107,7 @@ async def update_from_behavior(data: BehaviorUpdate):
         posterior = infer_style(model, evidence)
 
         model = update_prior(model, posterior)
-        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION)
+        await _save_model(data.user_id, model, LEARNING_STYLE_COLLECTION, None)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -116,7 +116,7 @@ async def update_from_behavior(data: BehaviorUpdate):
 
 @app.get("/infer-learning-style/{user_id}", response_model=StylePrediction)
 async def get_current_style(user_id: str):
-    doc = await _get_user_doc(user_id, LEARNING_STYLE_COLLECTION)
+    doc = await _get_user_doc(user_id, LEARNING_STYLE_COLLECTION, topic=None)
 
     prior_cpd = next(c for c in doc["cpds"] if c["variable"] == "LearningStyle")
     cpd = dict_to_cpd(prior_cpd)
@@ -265,6 +265,7 @@ async def update_difficulty(data: DifficultyUpdate):
         model = update_difficulty_prior(model, posterior)
         await _save_model(data.user_id, model, DIFFICULTY_COLLECTION, data.topic)
     except Exception as e:
+        logger.exception("Error: ", exc_info=e)
         raise HTTPException(status_code=400, detail=str(e))
     
     predicted = max(posterior, key=posterior.get)

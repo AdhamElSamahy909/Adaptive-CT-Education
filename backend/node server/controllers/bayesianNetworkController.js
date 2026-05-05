@@ -93,9 +93,15 @@ exports.updateLearningStyle = async (req, res) => {
       behavior_signal,
     });
 
+    // await user.updateOne({
+    //   lastPreferredLearningStyle:
+    //     behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
+    // });
+
     await user.updateOne({
-      lastPreferredLearningStyle:
-        behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
+      styleChange: {
+        isDetected: true,
+      },
     });
 
     console.log("Learning style update completed successfully:", response.data);
@@ -106,6 +112,35 @@ exports.updateLearningStyle = async (req, res) => {
     console.log(error);
     res.status(500).json({
       message: "An error occurred while updating the learning style",
+    });
+  }
+};
+
+exports.setStyleChanged = async (res, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.updateOne({
+      styleChange: {
+        isChanged: true,
+      },
+    });
+
+    console.log("Learning style change detected and updated successfully");
+    res
+      .status(200)
+      .json({
+        message: "Learning style change detected and updated successfully",
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "An error occurred while setting the learning style change",
     });
   }
 };
@@ -137,14 +172,20 @@ exports.inferDifficulty = async (req, res) => {
   console.log(
     "Received request to infer difficulty level for user:",
     req.params.userId,
+    req.params.topic,
   );
   try {
     const { userId, topic } = req.params;
     const user_id = userId;
 
-    const response = await axiosInstance.get(`/infer-difficulty/${user_id}`);
+    const response = await axiosInstance.get(
+      `/infer-difficulty/${user_id}/${topic}`,
+    );
 
-    console.log("Difficulty inference completed successfully:", response.data);
+    console.log(
+      `Difficulty inference completed, for topic ${topic} successfully:`,
+      response.data,
+    );
 
     res.status(200).json(response.data);
   } catch (error) {
