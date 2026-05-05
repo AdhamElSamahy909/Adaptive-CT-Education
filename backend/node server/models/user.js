@@ -46,11 +46,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // lastPreferredLearningStyle: {
-    //   type: String,
-    //   enum: ["Visual", "Verbal", "Unknown"],
-    //   default: "Unknown",
-    // },
+    lastPreferredLearningStyle: {
+      type: String,
+      enum: ["Visual", "Verbal", "Unknown"],
+      default: "Unknown",
+    },
     styleChange: {
       isDetected: { type: Boolean, default: false },
       isChanged: { type: Boolean, default: false },

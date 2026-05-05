@@ -93,10 +93,10 @@ exports.updateLearningStyle = async (req, res) => {
       behavior_signal,
     });
 
-    // await user.updateOne({
-    //   lastPreferredLearningStyle:
-    //     behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
-    // });
+    await user.updateOne({
+      lastPreferredLearningStyle:
+        behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
+    });
 
     await user.updateOne({
       styleChange: {
@@ -116,7 +116,7 @@ exports.updateLearningStyle = async (req, res) => {
   }
 };
 
-exports.setStyleChanged = async (res, res) => {
+exports.setStyleChanged = async (req, res) => {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId);
@@ -132,11 +132,9 @@ exports.setStyleChanged = async (res, res) => {
     });
 
     console.log("Learning style change detected and updated successfully");
-    res
-      .status(200)
-      .json({
-        message: "Learning style change detected and updated successfully",
-      });
+    res.status(200).json({
+      message: "Learning style change detected and updated successfully",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({

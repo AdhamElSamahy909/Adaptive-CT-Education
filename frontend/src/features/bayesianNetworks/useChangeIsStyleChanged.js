@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 async function changeIsStyleChangedApi(userId) {
   try {
@@ -22,10 +21,9 @@ async function changeIsStyleChangedApi(userId) {
 }
 
 export default function useChangeIsStyleChanged() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
-    mutate: submitChangeStyle,
+    mutate: submitChangeIsStyleChanged,
     isPending: isLoading,
     error,
   } = useMutation({
@@ -33,12 +31,11 @@ export default function useChangeIsStyleChanged() {
     onSuccess: () => {
       toast.success("Learning Style Updated!");
       queryClient.invalidateQueries(["user"]);
-      navigate("/home");
     },
     onError: () => {
       toast.error("Learning Style Update Failed");
     },
   });
 
-  return { submitChangeStyle, isLoading, error };
+  return { submitChangeIsStyleChanged, isLoading, error };
 }
