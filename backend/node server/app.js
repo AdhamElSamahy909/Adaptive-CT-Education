@@ -31,7 +31,7 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 app.use(hpp());
 
 app.use(express.json({ limit: "250kb" }));

@@ -22,49 +22,6 @@ function StudentHome() {
         </div>
       </section>
 
-      {/* Quick Stats Section */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-6">
-            {/* Stat 1 */}
-            <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-4xl font-bold text-medium_blue">3</div>
-                <span className="text-2xl">📚</span>
-              </div>
-              <p className="text-dark_blue font-medium">Topics Available</p>
-            </div>
-
-            {/* Stat 2 */}
-            <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-4xl font-bold text-medium_blue">0%</div>
-                <span className="text-2xl">📈</span>
-              </div>
-              <p className="text-dark_blue font-medium">Overall Progress</p>
-            </div>
-
-            {/* Stat 3 */}
-            <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-4xl font-bold text-medium_blue">0</div>
-                <span className="text-2xl">✅</span>
-              </div>
-              <p className="text-dark_blue font-medium">Exercises Completed</p>
-            </div>
-
-            {/* Stat 4 */}
-            <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
-              <div className="flex items-center justify-between mb-3">
-                <div className="text-4xl font-bold text-medium_blue">0</div>
-                <span className="text-2xl">🏆</span>
-              </div>
-              <p className="text-dark_blue font-medium">Achievements Earned</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Your Learning Path Section */}
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
@@ -91,10 +48,6 @@ function StudentHome() {
                   data operations.
                 </p>
                 <div className="mb-6">
-                  <div className="flex justify-between text-sm text-dark_blue mb-3">
-                    <span className="font-semibold">Progress</span>
-                    <span className="font-semibold">0%</span>
-                  </div>
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
@@ -120,10 +73,6 @@ function StudentHome() {
                   and iterative patterns.
                 </p>
                 <div className="mb-6">
-                  <div className="flex justify-between text-sm text-dark_blue mb-3">
-                    <span className="font-semibold">Progress</span>
-                    <span className="font-semibold">0%</span>
-                  </div>
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
@@ -149,10 +98,6 @@ function StudentHome() {
                   reasoning techniques.
                 </p>
                 <div className="mb-6">
-                  <div className="flex justify-between text-sm text-dark_blue mb-3">
-                    <span className="font-semibold">Progress</span>
-                    <span className="font-semibold">0%</span>
-                  </div>
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
@@ -250,3 +195,46 @@ function StudentHome() {
 }
 
 export default StudentHome;
+
+// {/* Quick Stats Section */}
+//       <section className="px-4 py-12 sm:px-6 lg:px-8">
+//         <div className="max-w-6xl mx-auto">
+//           <div className="grid md:grid-cols-4 gap-6">
+//             {/* Stat 1 */}
+//             <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
+//               <div className="flex items-center justify-between mb-3">
+//                 <div className="text-4xl font-bold text-medium_blue">3</div>
+//                 <span className="text-2xl">📚</span>
+//               </div>
+//               <p className="text-dark_blue font-medium">Topics Available</p>
+//             </div>
+
+//             {/* Stat 2 */}
+//             <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
+//               <div className="flex items-center justify-between mb-3">
+//                 <div className="text-4xl font-bold text-medium_blue">0%</div>
+//                 <span className="text-2xl">📈</span>
+//               </div>
+//               <p className="text-dark_blue font-medium">Overall Progress</p>
+//             </div>
+
+//             {/* Stat 3 */}
+//             <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
+//               <div className="flex items-center justify-between mb-3">
+//                 <div className="text-4xl font-bold text-medium_blue">0</div>
+//                 <span className="text-2xl">✅</span>
+//               </div>
+//               <p className="text-dark_blue font-medium">Exercises Completed</p>
+//             </div>
+
+//             {/* Stat 4 */}
+//             <div className="group bg-white border border-light_blue rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:border-medium_blue">
+//               <div className="flex items-center justify-between mb-3">
+//                 <div className="text-4xl font-bold text-medium_blue">0</div>
+//                 <span className="text-2xl">🏆</span>
+//               </div>
+//               <p className="text-dark_blue font-medium">Achievements Earned</p>
+//             </div>
+//           </div>
+//         </div>
+//       </section>
