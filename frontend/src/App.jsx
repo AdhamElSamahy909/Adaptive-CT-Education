@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import Loops from "./pages/Loops";
 import Conditionals from "./pages/Conditionals";
 import Sequential from "./pages/Sequential";
-import ProtectedRoute from "./ui/protectedRoute";
+import ProtectedRoute from "./ui/ProtectedRoute";
 import AppLayout from "./ui/AppLayout";
 import LecturePage from "./pages/LecturePage";
 import ExercisePage from "./pages/ExercisePage";

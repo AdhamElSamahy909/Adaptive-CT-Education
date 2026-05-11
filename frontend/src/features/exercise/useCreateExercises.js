@@ -26,7 +26,8 @@ export default function useCreateExercises() {
   } = useMutation({
     mutationFn: ({ exercises }) => createExercisesApi(exercises),
     onSuccess: () => {
-      toast.success("Exercises created successfully");
+      toast.success("Exercise(s) created successfully");
+
       queryClient.invalidateQueries({ queryKey: ["exercises"] });
     },
     onError: () => {

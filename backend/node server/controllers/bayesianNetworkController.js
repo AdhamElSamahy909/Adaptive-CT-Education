@@ -93,19 +93,30 @@ exports.updateLearningStyle = async (req, res) => {
       behavior_signal,
     });
 
-    await user.updateOne({
-      lastPreferredLearningStyle:
-        behavior_signal === "VisualDominant" ? "Visual" : "Verbal",
-    });
+    const behaviorSignal =
+      behavior_signal === "VisualDominant" ? "Visual" : "Verbal";
+
+    const isStyleChanedToBeUpdated =
+      user.lastPreferredLearningStyle !== behaviorSignal;
 
     await user.updateOne({
-      styleChange: {
-        isDetected: true,
-      },
+      lastPreferredLearningStyle: behaviorSignal,
     });
 
-    console.log("Learning style update completed successfully:", response.data);
-    console.log("Learning style update completed successfully");
+    if (isStyleChanedToBeUpdated) {
+      await user.updateOne({
+        styleChange: {
+          isDetected: !user.styleChange.isDetected,
+          isChanged: user.styleChange.isChanged,
+        },
+      });
+
+      console.log(
+        "Learning style update completed successfully:",
+        response.data,
+      );
+      console.log("Learning style update completed successfully");
+    }
 
     res.status(200).json(response.data);
   } catch (error) {
@@ -127,7 +138,8 @@ exports.setStyleChanged = async (req, res) => {
 
     await user.updateOne({
       styleChange: {
-        isChanged: true,
+        isChanged: !user.styleChange.isChanged,
+        isDetected: user.styleChange.isDetected,
       },
     });
 

@@ -41,8 +41,9 @@ function LectureStudent() {
   );
   const { submitChangeIsStyleChanged } = useChangeIsStyleChanged();
 
-  const showStyleChangeModal = !xor(
-    styleChange?.isDetected && styleChange?.isChanged,
+  const showStyleChangeModal = xor(
+    styleChange?.isDetected,
+    styleChange?.isChanged,
   );
 
   console.log(
@@ -158,7 +159,7 @@ function LectureStudent() {
             </h1>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center min-h-[600px] justify-center border-t-4 border-medium_blue">
+          <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center justify-center border-t-4 border-medium_blue">
             {isLoading ? (
               <div className="text-medium_blue font-bold animate-pulse">
                 Loading Lecture Slides...
@@ -166,16 +167,16 @@ function LectureStudent() {
             ) : url ? (
               <div className="flex flex-col items-center w-full">
                 <div
-                  className={`border-2 rounded-lg shadow-lg overflow-hidden min-h-[600px] bg-offwite ${numPages ? "border-light_blue" : "border-white"}`}
+                  className={`border-2 rounded-lg shadow-lg overflow-hidden bg-offwite ${numPages ? "border-light_blue" : "border-white"}`}
                 >
                   <Document
                     file={url}
                     onLoadSuccess={onDocumentLoadSuccess}
-                    loading={<div className="h-[600px]" />}
+                    loading={<div className="" />}
                   >
                     <Page
                       pageNumber={pageNumber}
-                      loading={<div className="h-[600px] w-[800px] bg-white" />}
+                      loading={<div className="w-[800px] bg-white" />}
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
                       className="max-w-full"

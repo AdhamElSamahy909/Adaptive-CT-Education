@@ -47,16 +47,16 @@ function StudentHome() {
                   Start with the fundamentals of sequential execution and basic
                   data operations.
                 </p>
-                <div className="mb-6">
+                {/* <div className="mb-6">
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
                       style={{ width: "0%" }}
                     ></div>
                   </div>
-                </div>
+                </div> */}
                 <button className="w-full bg-medium_blue hover:bg-dark_blue text-offwite font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md">
-                  Continue Learning →
+                  Learn →
                 </button>
               </div>
             </div>
@@ -72,16 +72,16 @@ function StudentHome() {
                   Automate repetitive tasks and control program flow with loops
                   and iterative patterns.
                 </p>
-                <div className="mb-6">
+                {/* <div className="mb-6">
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
                       style={{ width: "0%" }}
                     ></div>
                   </div>
-                </div>
+                </div> */}
                 <button className="w-full bg-medium_blue hover:bg-dark_blue text-offwite font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md">
-                  Start Learning →
+                  Learn →
                 </button>
               </div>
             </div>
@@ -97,16 +97,16 @@ function StudentHome() {
                   Master decision-making with conditional statements and logical
                   reasoning techniques.
                 </p>
-                <div className="mb-6">
+                {/* <div className="mb-6">
                   <div className="w-full bg-light_blue rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-medium_blue h-3 rounded-full transition-all duration-500"
                       style={{ width: "0%" }}
                     ></div>
                   </div>
-                </div>
+                </div> */}
                 <button className="w-full bg-medium_blue hover:bg-dark_blue text-offwite font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md">
-                  Start Learning →
+                  Learn →
                 </button>
               </div>
             </div>

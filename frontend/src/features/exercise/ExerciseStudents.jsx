@@ -710,7 +710,13 @@ function ExerciseStudents() {
                     Step-by-Step Guide
                   </h3>
                   <div className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-mono">
-                    {selectedExercise?.wayToSolve?.verbal}
+                    {Array.isArray(selectedExercise?.wayToSolve?.verbal)
+                      ? selectedExercise.wayToSolve.verbal.map((step, index) => (
+                          <div key={index} className="mb-2">
+                            {index + 1}. {step}
+                          </div>
+                        ))
+                      : selectedExercise?.wayToSolve?.verbal}
                   </div>
                 </div>
               )}
@@ -766,7 +772,13 @@ function ExerciseStudents() {
                     Step-by-Step Guide
                   </h3>
                   <div className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-mono">
-                    {selectedExercise?.wayToSolve?.verbal}
+                    {Array.isArray(selectedExercise?.wayToSolve?.verbal)
+                      ? selectedExercise.wayToSolve.verbal.map((step, index) => (
+                          <div key={index} className="mb-2">
+                            {index + 1}. {step}
+                          </div>
+                        ))
+                      : selectedExercise?.wayToSolve?.verbal}
                   </div>
                 </div>
               )}

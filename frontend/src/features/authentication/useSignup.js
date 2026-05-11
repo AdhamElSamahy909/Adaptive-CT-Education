@@ -23,6 +23,7 @@ async function signupApi(
 
     return data;
   } catch (error) {
+    console.log("Signup error:", error);
     throw new Error(error?.response?.data?.message || "Signup failed");
   }
 }
@@ -48,7 +49,7 @@ export default function useSignup() {
       toast.success("Successful Signup");
       navigate("/");
     },
-    onError: () => toast.error("Signup Failed"),
+    onError: (err) => toast.error(err?.message || "Signup Failed"),
   });
 
   return { signup, isLoading, error };

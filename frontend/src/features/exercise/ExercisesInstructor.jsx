@@ -67,10 +67,17 @@ function ExercisesInstructor() {
 
   const updateEx = (field, value) => {
     const updated = [...currentExercises];
-    updated[localIndex] = {
-      ...updated[localIndex],
-      [field]: value,
-    };
+    if (typeof field === "object" && field !== null) {
+      updated[localIndex] = {
+        ...updated[localIndex],
+        ...field,
+      };
+    } else {
+      updated[localIndex] = {
+        ...updated[localIndex],
+        [field]: value,
+      };
+    }
 
     if (isNewExercise) {
       setNewExercises(updated);
@@ -606,229 +613,281 @@ function ExercisesInstructor() {
         </section>
 
         {/* Generate Guide Button */}
-        <div className="mb-4">
-          <button
-            onClick={() =>
-              createGuide({
-                title: currentEx?.title,
-                description: currentEx?.description,
-                testCases: currentEx?.testCases
-                  .map(
-                    (tc) =>
-                      `Input: ${tc.input}\nExpected Output: ${tc.output}\nExplanation: ${tc.explanation}`,
+        {isNewExercise &&
+          currentEx?.verbalSteps.length <= 1 &&
+          currentEx?.verbalSteps[0] === "" &&
+          currentEx?.visualSteps.length <= 1 &&
+          currentEx?.visualSteps[0]?.text === "" && (
+            <div className="mb-4">
+              <button
+                onClick={() =>
+                  createGuide(
+                    {
+                      title: currentEx?.title,
+                      description: currentEx?.description,
+                      testCases: currentEx?.testCases
+                        .map(
+                          (tc) =>
+                            `Input: ${tc.input}\nExpected Output: ${tc.output}\nExplanation: ${tc.explanation}`,
+                        )
+                        .join("\n\n"),
+                      topic: currentEx?.topic || "loops",
+                    },
+                    {
+                      onSuccess: (data) => {
+                        const updates = {};
+                        if (data?.steps) {
+                          updates.verbalSteps = data.steps
+                            .split("\n")
+                            .map((s) => s.trim())
+                            .filter((s) => s.length > 0)
+                            .map((s) =>
+                              s.replace(/^\d+\.\s*|\*\*|\$/g, "").trim(),
+                            );
+                        }
+                        if (data?.flowchart) {
+                          updates.visualSteps = data.flowchart;
+                        }
+                        if (Object.keys(updates).length > 0) {
+                          updateEx(updates);
+                        }
+                      },
+                    },
                   )
-                  .join("\n\n"),
-                topic: currentEx?.topic || "loops",
-              })
-            }
-            disabled={isCreatingGuide}
-            className={`px-6 py-2 font-bold rounded-lg transition-colors ${
-              isCreatingGuide
-                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                : "bg-medium_blue text-white hover:bg-dark_blue"
-            }`}
-          >
-            {isCreatingGuide ? "Generating Guide..." : "Generate Guide"}
-          </button>
-        </div>
-
-        {/* Verbal Steps */}
-        <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-medium_blue">
-          <div className="mb-4 border-b pb-2">
-            <h2 className="text-xl font-bold text-dark_blue">
-              Verbal Solution Guide
-            </h2>
-          </div>
-          <div className="space-y-3">
-            {currentEx?.verbalSteps.map((step, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <span className="font-bold text-medium_blue w-6">
-                  {index + 1}.
-                </span>
-                <input
-                  type="text"
-                  required
-                  className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue bg-offwite"
-                  value={step}
-                  onChange={(e) =>
-                    handleUpdateVerbalStep(index, e.target.value)
-                  }
-                  placeholder="Describe this step..."
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveVerbalStep(index)}
-                  className="text-red-500 hover:text-red-700 px-2"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 pt-4 border-t">
-            <button
-              type="button"
-              onClick={handleAddVerbalStep}
-              className="text-sm bg-medium_blue text-white px-3 py-1 rounded hover:bg-dark_blue transition-colors"
-            >
-              + Add Step
-            </button>
-          </div>
-        </section>
-
-        {/* Visual Steps */}
-        <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-dark_blue">
-          <div className="mb-4 border-b pb-2">
-            <h2 className="text-xl font-bold text-dark_blue">
-              Visual Flowchart Nodes
-            </h2>
-          </div>
-          <div className="space-y-6">
-            {currentEx?.visualSteps.map((vStep, vIndex) => (
-              <div
-                key={vIndex}
-                className="p-4 border-2 border-light_blue rounded-xl bg-offwite"
+                }
+                disabled={isCreatingGuide}
+                className={`px-6 py-2 font-bold rounded-lg transition-colors ${
+                  isCreatingGuide
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-medium_blue text-white hover:bg-dark_blue"
+                }`}
               >
-                <div className="flex justify-between mb-3">
-                  <h3 className="font-bold text-dark_blue">
-                    Node {vIndex + 1}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveVisualStep(vIndex)}
-                    className="text-red-500 hover:text-red-700 text-sm font-bold"
-                  >
-                    Remove Node
-                  </button>
-                </div>
+                {isCreatingGuide ? "Generating Guide..." : "Generate Guide"}
+              </button>
+            </div>
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">
-                      Node Text
-                    </label>
+        {isCreatingGuide ? (
+          <div className="flex justify-center items-center py-12">
+            <Loader />
+          </div>
+        ) : (
+          <>
+            {/* Verbal Steps */}
+            <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-medium_blue">
+              <div className="mb-4 border-b pb-2">
+                <h2 className="text-xl font-bold text-dark_blue">
+                  Verbal Solution Guide
+                </h2>
+              </div>
+              <div className="space-y-3">
+                {currentEx?.verbalSteps.map((step, index) => (
+                  <div key={index} className="flex gap-2 items-center">
+                    <span className="font-bold text-medium_blue w-6">
+                      {index + 1}.
+                    </span>
                     <input
                       type="text"
                       required
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue"
-                      value={vStep.text}
+                      className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue bg-offwite"
+                      value={step}
                       onChange={(e) =>
-                        handleUpdateVisualStep(vIndex, "text", e.target.value)
+                        handleUpdateVerbalStep(index, e.target.value)
                       }
-                      placeholder="e.g., Start, or i < N?"
+                      placeholder="Describe this step..."
                     />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1">
-                      Shape
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue"
-                      value={vStep.shape}
-                      onChange={(e) =>
-                        handleUpdateVisualStep(vIndex, "shape", e.target.value)
-                      }
-                    >
-                      <option value="oval">Oval (Start/End)</option>
-                      <option value="rectangle">Rectangle (Process)</option>
-                      <option value="parallelogram">Parallelogram (I/O)</option>
-                      <option value="diamond">Diamond (Condition)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-3 bg-white border rounded">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-sm font-bold text-medium_blue">
-                      Edges / Directed Towards
-                    </h4>
                     <button
                       type="button"
-                      onClick={() => handleAddDirectedTowards(vIndex)}
-                      className="text-xs bg-light_blue text-dark_blue px-2 py-1 rounded hover:bg-medium_blue hover:text-white transition-colors"
+                      onClick={() => handleRemoveVerbalStep(index)}
+                      className="text-red-500 hover:text-red-700 px-2"
                     >
-                      + Add Edge
+                      ✕
                     </button>
                   </div>
-
-                  {vStep.directedTowards.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic">
-                      No outgoing edges (e.g., End node)
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {vStep.directedTowards.map((dt, dtIndex) => (
-                        <div key={dtIndex} className="flex gap-3 items-center">
-                          <select
-                            className="text-sm px-2 py-1 border rounded focus:outline-none"
-                            value={dt.direction}
-                            onChange={(e) =>
-                              handleUpdateDirectedTowards(
-                                vIndex,
-                                dtIndex,
-                                "direction",
-                                e.target.value,
-                              )
-                            }
-                          >
-                            <option value="next">Next</option>
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                          </select>
-                          <span className="text-gray-400">→</span>
-                          <select
-                            required
-                            className="flex-1 text-sm px-2 py-1 border rounded focus:outline-none"
-                            value={dt.requiredStep}
-                            onChange={(e) =>
-                              handleUpdateDirectedTowards(
-                                vIndex,
-                                dtIndex,
-                                "requiredStep",
-                                e.target.value,
-                              )
-                            }
-                          >
-                            <option value="" disabled>
-                              Select target node...
-                            </option>
-                            {currentEx.visualSteps.map((targetStep, idx) => (
-                              <option
-                                key={idx}
-                                value={targetStep.text}
-                                disabled={!targetStep.text}
-                              >
-                                {targetStep.text || `Node ${idx + 1} (empty)`}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              handleRemoveDirectedTowards(vIndex, dtIndex)
-                            }
-                            className="text-red-500 hover:text-red-700 font-bold px-2 text-xl"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="mt-6 pt-4 border-t">
-            <button
-              type="button"
-              onClick={handleAddVisualStep}
-              className="text-sm bg-medium_blue text-white px-3 py-1 rounded hover:bg-dark_blue transition-colors"
-            >
-              + Add Node
-            </button>
-          </div>
-        </section>
+              <div className="mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={handleAddVerbalStep}
+                  className="text-sm bg-medium_blue text-white px-3 py-1 rounded hover:bg-dark_blue transition-colors"
+                >
+                  + Add Step
+                </button>
+              </div>
+            </section>
+
+            {/* Visual Steps */}
+            <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-dark_blue">
+              <div className="mb-4 border-b pb-2">
+                <h2 className="text-xl font-bold text-dark_blue">
+                  Visual Flowchart Nodes
+                </h2>
+              </div>
+              <div className="space-y-6">
+                {currentEx?.visualSteps.map((vStep, vIndex) => (
+                  <div
+                    key={vIndex}
+                    className="p-4 border-2 border-light_blue rounded-xl bg-offwite"
+                  >
+                    <div className="flex justify-between mb-3">
+                      <h3 className="font-bold text-dark_blue">
+                        Node {vIndex + 1}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVisualStep(vIndex)}
+                        className="text-red-500 hover:text-red-700 text-sm font-bold"
+                      >
+                        Remove Node
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">
+                          Node Text
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue"
+                          value={vStep.text}
+                          onChange={(e) =>
+                            handleUpdateVisualStep(
+                              vIndex,
+                              "text",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="e.g., Start, or i < N?"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1">
+                          Shape
+                        </label>
+                        <select
+                          className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-medium_blue"
+                          value={vStep.shape}
+                          onChange={(e) =>
+                            handleUpdateVisualStep(
+                              vIndex,
+                              "shape",
+                              e.target.value,
+                            )
+                          }
+                        >
+                          <option value="oval">Oval (Start/End)</option>
+                          <option value="rectangle">Rectangle (Process)</option>
+                          <option value="parallelogram">
+                            Parallelogram (I/O)
+                          </option>
+                          <option value="diamond">Diamond (Condition)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 p-3 bg-white border rounded">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-sm font-bold text-medium_blue">
+                          Edges / Directed Towards
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => handleAddDirectedTowards(vIndex)}
+                          className="text-xs bg-light_blue text-dark_blue px-2 py-1 rounded hover:bg-medium_blue hover:text-white transition-colors"
+                        >
+                          + Add Edge
+                        </button>
+                      </div>
+
+                      {vStep.directedTowards.length === 0 ? (
+                        <p className="text-xs text-gray-400 italic">
+                          No outgoing edges (e.g., End node)
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {vStep.directedTowards.map((dt, dtIndex) => (
+                            <div
+                              key={dtIndex}
+                              className="flex gap-3 items-center"
+                            >
+                              <select
+                                className="text-sm px-2 py-1 border rounded focus:outline-none"
+                                value={dt.direction}
+                                onChange={(e) =>
+                                  handleUpdateDirectedTowards(
+                                    vIndex,
+                                    dtIndex,
+                                    "direction",
+                                    e.target.value,
+                                  )
+                                }
+                              >
+                                <option value="next">Next</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                              </select>
+                              <span className="text-gray-400">→</span>
+                              <select
+                                required
+                                className="flex-1 text-sm px-2 py-1 border rounded focus:outline-none"
+                                value={dt.requiredStep}
+                                onChange={(e) =>
+                                  handleUpdateDirectedTowards(
+                                    vIndex,
+                                    dtIndex,
+                                    "requiredStep",
+                                    e.target.value,
+                                  )
+                                }
+                              >
+                                <option value="" disabled>
+                                  Select target node...
+                                </option>
+                                {currentEx.visualSteps.map(
+                                  (targetStep, idx) => (
+                                    <option
+                                      key={idx}
+                                      value={targetStep.text}
+                                      disabled={!targetStep.text}
+                                    >
+                                      {targetStep.text ||
+                                        `Node ${idx + 1} (empty)`}
+                                    </option>
+                                  ),
+                                )}
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveDirectedTowards(vIndex, dtIndex)
+                                }
+                                className="text-red-500 hover:text-red-700 font-bold px-2 text-xl"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={handleAddVisualStep}
+                  className="text-sm bg-medium_blue text-white px-3 py-1 rounded hover:bg-dark_blue transition-colors"
+                >
+                  + Add Node
+                </button>
+              </div>
+            </section>
+          </>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-4">
