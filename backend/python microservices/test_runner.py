@@ -65,7 +65,10 @@ func_name = {json.dumps(function_name)}
 
 captured = StringIO()
 sys.stdout = captured
-namespace = {{}}
+
+# FIX 1: Inject JSON-style constants into the Python namespace
+# This prevents NameErrors when students type 'return null' or 'return true'
+namespace = {{'null': None, 'true': True, 'false': False}}
 
 try:
     # Execute the code to define the function
@@ -94,18 +97,24 @@ finally:
     
 # Get stdout output
 stdout_output = captured.getvalue().strip()
+expected = {json.dumps(expected_output)}
 
-# Determine the actual output: use returned value if not None, otherwise use stdout
+# FIX 2: Handle None/null returns properly
 if result is not None:
     # Special handling for tuples: format as comma-separated without parentheses
     if isinstance(result, tuple):
         actual_output = ", ".join(str(item) for item in result)
+    # Special handling for booleans: map True/False to true/false to match JSON outputs
+    elif isinstance(result, bool):
+        actual_output = str(result).lower()
     else:
         actual_output = str(result).strip()
 else:
-    actual_output = stdout_output
-
-expected = {json.dumps(expected_output)}
+    # If result is None (or null), and they didn't print anything, map to the string "null"
+    if not stdout_output:
+        actual_output = "null"
+    else:
+        actual_output = stdout_output
 
 # --- FIX: Helper to strip outer quotes to prevent string mismatch errors ---
 def strip_quotes(s):

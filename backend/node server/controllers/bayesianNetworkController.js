@@ -61,8 +61,14 @@ exports.inferLearningStyle = async (req, res) => {
 
 exports.updateLearningStyle = async (req, res) => {
   try {
-    const { userId, numOfBackClicks, numOfForwardClicks, currentMode } =
-      req.body;
+    const {
+      userId,
+      numOfBackClicks,
+      numOfForwardClicks,
+      currentMode,
+      visualScore,
+      verbalScore,
+    } = req.body;
 
     console.log("Received learning style update data:", {
       userId,
@@ -88,37 +94,43 @@ exports.updateLearningStyle = async (req, res) => {
       behavior_signal,
     });
 
-    const response = await axiosInstance.post(`/update-learning-style`, {
-      user_id,
-      behavior_signal,
-    });
-
-    const behaviorSignal =
-      behavior_signal === "VisualDominant" ? "Visual" : "Verbal";
-
-    const isStyleChanedToBeUpdated =
-      user.lastPreferredLearningStyle !== behaviorSignal;
-
-    await user.updateOne({
-      lastPreferredLearningStyle: behaviorSignal,
-    });
-
-    if (isStyleChanedToBeUpdated) {
-      await user.updateOne({
-        styleChange: {
-          isDetected: !user.styleChange.isDetected,
-          isChanged: user.styleChange.isChanged,
-        },
+    let response;
+    if (
+      (behavior_signal === "VisualDominant" && visualScore < 0.8) ||
+      (behavior_signal === "VerbalDominant" && verbalScore < 0.8)
+    ) {
+      response = await axiosInstance.post(`/update-learning-style`, {
+        user_id,
+        behavior_signal,
       });
 
-      console.log(
-        "Learning style update completed successfully:",
-        response.data,
-      );
-      console.log("Learning style update completed successfully");
+      const behaviorSignal =
+        behavior_signal === "VisualDominant" ? "Visual" : "Verbal";
+
+      const isStyleChanedToBeUpdated =
+        user.lastPreferredLearningStyle !== behaviorSignal;
+
+      await user.updateOne({
+        lastPreferredLearningStyle: behaviorSignal,
+      });
+
+      if (isStyleChanedToBeUpdated) {
+        await user.updateOne({
+          styleChange: {
+            isDetected: !user.styleChange.isDetected,
+            isChanged: user.styleChange.isChanged,
+          },
+        });
+
+        console.log(
+          "Learning style update completed successfully:",
+          response.data,
+        );
+        console.log("Learning style update completed successfully");
+      }
     }
 
-    res.status(200).json(response.data);
+    res.status(200).json(response?.data);
   } catch (error) {
     console.log(error);
     res.status(500).json({

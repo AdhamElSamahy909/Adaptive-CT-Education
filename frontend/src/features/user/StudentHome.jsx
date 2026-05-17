@@ -163,11 +163,11 @@ function StudentHome() {
                 <span className="text-4xl mt-1">🎯</span>
                 <div>
                   <h3 className="text-lg font-bold text-dark_blue mb-2">
-                    Choose Your Style
+                    Your Style Is Adapted
                   </h3>
                   <p className="text-medium_blue">
-                    We offer visual, verbal, and hands-on exercises. Pick
-                    whichever format helps you learn best.
+                    We offer visual, verbal, and hands-on difficulty-adapted
+                    exercises.
                   </p>
                 </div>
               </div>

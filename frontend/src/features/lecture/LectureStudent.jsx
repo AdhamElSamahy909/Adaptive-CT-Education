@@ -79,6 +79,8 @@ function LectureStudent() {
         numOfBackClicks,
         numOfForwardClicks: newForwardClicks,
         currentMode,
+        visualScore,
+        verbalScore,
       });
     } else {
       setNumOfForwardClicks(newForwardClicks);

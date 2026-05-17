@@ -9,6 +9,9 @@ async function runCodeApi(
   timeTaken,
   problemLevel,
   topic,
+  easyScore,
+  mediumScore,
+  hardScore,
 ) {
   try {
     console.log("Running code:", code);
@@ -19,6 +22,9 @@ async function runCodeApi(
       timeTaken,
       problemLevel,
       topic,
+      easyScore,
+      mediumScore,
+      hardScore,
     });
 
     return data;
@@ -40,8 +46,28 @@ export default function useRunCode(refetchDifficulty) {
     status,
     reset,
   } = useMutation({
-    mutationFn: ({ code, problemId, userId, timeTaken, problemLevel, topic }) =>
-      runCodeApi(code, problemId, userId, timeTaken, problemLevel, topic),
+    mutationFn: ({
+      code,
+      problemId,
+      userId,
+      timeTaken,
+      problemLevel,
+      topic,
+      easyScore,
+      mediumScore,
+      hardScore,
+    }) =>
+      runCodeApi(
+        code,
+        problemId,
+        userId,
+        timeTaken,
+        problemLevel,
+        topic,
+        easyScore,
+        mediumScore,
+        hardScore,
+      ),
     onSuccess: (data) => {
       // toast.success("Code executed successfully");
       console.log("Result of successfully running code: ", data);

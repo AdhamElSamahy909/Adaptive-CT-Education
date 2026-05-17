@@ -127,6 +127,9 @@ function ExerciseStudents() {
         timeTaken: (Date.now() - time.current) / 60000,
         problemLevel: selectedExercise?.difficulty,
         topic,
+        easyScore,
+        mediumScore,
+        hardScore,
       },
       {
         onSuccess: (data) => {

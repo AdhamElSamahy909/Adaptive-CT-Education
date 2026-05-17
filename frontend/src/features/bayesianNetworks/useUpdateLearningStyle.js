@@ -6,6 +6,8 @@ async function updateLearningStyleApi(
   numOfBackClicks,
   numOfForwardClicks,
   currentMode,
+  visualScore,
+  verbalScore,
 ) {
   try {
     console.log("Updating learning style for user: ", userId);
@@ -16,6 +18,8 @@ async function updateLearningStyleApi(
         numOfBackClicks,
         numOfForwardClicks,
         currentMode,
+        visualScore,
+        verbalScore,
       },
     );
 
@@ -39,12 +43,16 @@ export default function useUpdateLearningStyle(refetchUser) {
       numOfBackClicks,
       numOfForwardClicks,
       currentMode,
+      visualScore,
+      verbalScore,
     }) =>
       updateLearningStyleApi(
         userId,
         numOfBackClicks,
         numOfForwardClicks,
         currentMode,
+        visualScore,
+        verbalScore,
       ),
     onSuccess: () => {
       console.log("Refetching User Details");
