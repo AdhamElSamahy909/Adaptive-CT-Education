@@ -16,6 +16,9 @@ from model.load_model import load_detector_model
 from typing import Dict, List, Optional
 import torch
 import logging
+# from dotenv import load_dotenv
+
+# load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,7 +34,7 @@ MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = "Adaptive_CT_Education"
 
 client = AsyncIOMotorClient(MONGO_URI)
-db = client[DB_NAME]
+db = client["adaptive-ct-education-db"]
 
 LEARNING_STYLE_COLLECTION = "user_learning_style_networks"
 DIFFICULTY_COLLECTION     = "user_difficulty_networks"
@@ -135,50 +138,53 @@ async def run_test_case_in_docker(request: ExecuteCodeResponse):
     timeout = request.timeout
     test_case_num = request.test_case_num
 
-    execution_id = str(uuid.uuid4())
-    temp_file_path = os.path.join(TEMP_DIR, f"{execution_id}.py")
-    container = None
-
     try:
         test_runner_code = create_test_runner(code, title, test_case)
 
-        with open(temp_file_path, "w") as f:
-            f.write(test_runner_code)
-
-        print(f"Starting Docker container or execution {execution_id}")
+        print(f"Starting Docker STDIN execution for test case {test_case_num}")
         test_start_time = time.time()
 
-        container = docker_client.containers.run(
-            image="python-sandbox",
-            command=f"python /code/{os.path.basename(temp_file_path)}",
-            volumes={
-                os.path.dirname(temp_file_path): {"bind": "/code", "mode": "ro"}
-            },
-            mem_limit="256m",
-            memswap_limit="256m",
-            cpu_period=100000,
-            cpu_quota=50000,
-            network_disabled=True,
-            read_only=True,
-            security_opt=["no-new-privileges:true"],
-            cap_drop=["ALL"],
-            detach=True,
-            remove=False
+        process = await asyncio.create_subprocess_exec(
+            "docker", "run", "--rm", "-i",
+            "--user", "sandbox",
+            "--net", "none",
+            "--memory", "256m",
+            "--memory-swap", "256m",
+            "--cpu-period", "100000",
+            "--cpu-quota", "50000",
+            "--security-opt", "no-new-privileges:true",
+            "--cap-drop", "ALL",
+            "python-sandbox:latest",
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
         )
 
-        loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(
-            None,
-            lambda: container.wait(timeout=timeout)
-        )
-
-        logs = container.logs(stdout=True, stderr=True).decode('utf-8')
+        try:
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(input=test_runner_code.encode('utf-8')),
+                timeout=timeout
+            )
+            status_code = process.returncode
+            logs = stdout.decode('utf-8')
+            error_logs = stderr.decode('utf-8')
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            return TestResult(
+                test_case=test_case_num,
+                passed=False,
+                error=f"Timeout after {timeout} seconds.",
+                execution_time=timeout
+            )
+    
         execution_time = time.time() - test_start_time
+        print(f"Test case {test_case_num} cmpleted in {execution_time:.2f}s")
 
-        print(f"Container {execution_id} completed in {execution_time:.2f}s")
+        full_logs = logs if status_code == 0 else logs + "\n" + error_logs
 
-        if result["StatusCode"] == 0:
-            for line in logs.strip().split("\n"):
+        if status_code == 0:
+            for line in full_logs.strip().split("\n"):
                 if line.startswith('{'):
                     try:
                         output_data = json.loads(line)
@@ -186,48 +192,34 @@ async def run_test_case_in_docker(request: ExecuteCodeResponse):
                             test_case=test_case_num,
                             passed=output_data.get("passed", False),
                             output=output_data.get("output"),
+                            expected=output_data.get("expected"),
                             error=output_data.get("error"),
                             execution_time=execution_time
                         )
-                    
                     except json.JSONDecodeError:
                         pass
+                
             return TestResult(
                 test_case=test_case_num,
-                passed=True,
-                output=logs.strip(),
+                passed=False,
+                error=f"Execution failed with status code: {status_code}:\n{full_logs}",
                 execution_time=execution_time
             )
         else:
             return TestResult(
                 test_case=test_case_num,
                 passed=False,
-                error=f"Execution failed with status code {result['StatusCode']}:\n{logs}",
+                error=f"Execution failed with status code {status_code}:\n{full_logs}",
                 execution_time=execution_time
             )
     except Exception as e:
         execution_time = time.time() - test_start_time if "test_start_time" in locals() else 0
-
-        error_msg = str(e)
-        if "timeout" in error_msg.lower():
-            error_msg = f"Timeout after {timeout} seconds."
         return TestResult(
             test_case=test_case_num,
             passed=False,
-            error=f"Docker execution error: {str(e)}",
-            execution_time=0
+            error=f"Execution error: {str(e)}",
+            execution_time=execution_time
         )
-    finally:
-        if container:
-            try:
-                container.remove(force=True)
-                print(f"Removed container {execution_id}")
-            except:
-                pass
-        if os.path.exists(temp_file_path):
-            try:
-                os.unlink(temp_file_path)
-            except: pass
 
 @app.post("/initialize-difficulty-network")
 async def initialize_difficulty_network(data: DifficultyInitialize):

@@ -2,6 +2,7 @@ import { useState } from "react";
 import useColdStart from "./useColdStart";
 import useUser from "../authentication/useUser";
 import useInitializeDifficulty from "./useInitializeDifficulty";
+import toast from "react-hot-toast";
 
 const ShapeCell = ({ shape, fill }) => {
   const renderShape = () => {
@@ -430,8 +431,9 @@ function ColdStartChallenge() {
   const [currentChallenge, setCurrentChallenge] = useState(1);
   const [challenge1Answer, setChallenge1Answer] = useState(null);
   const [challenge2Answer, setChallenge2Answer] = useState(null);
-  const { submitColdStart } = useColdStart();
-  const { initializeDifficulty } = useInitializeDifficulty();
+  const { submitColdStart, isLoading: isSubmitting } = useColdStart();
+  const { initializeDifficulty, isLoading: isInitializing } =
+    useInitializeDifficulty();
   const { userId } = useUser();
 
   const handleChallenge1Complete = () => {
@@ -451,6 +453,7 @@ function ColdStartChallenge() {
       challenge2Answer,
     });
     initializeDifficulty({ userId });
+    toast.success("Welcome to ThinkFlow! Your learning journey begins now.");
   };
 
   return (
@@ -507,9 +510,16 @@ function ColdStartChallenge() {
               </p>
               <button
                 onClick={handleSubmitResults}
-                className="w-full cursor-pointer bg-gradient-to-r from-medium_blue to-dark_blue text-white font-semibold py-3 rounded-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
+                disabled={isSubmitting || isInitializing}
+                className={`w-full bg-gradient-to-r from-medium_blue to-dark_blue text-white font-semibold py-3 rounded-lg transition-all duration-200 ${
+                  isSubmitting || isInitializing
+                    ? "opacity-70 cursor-not-allowed"
+                    : "cursor-pointer hover:shadow-xl hover:scale-105"
+                }`}
               >
-                Submit Results
+                {isSubmitting || isInitializing
+                  ? "Submitting..."
+                  : "Submit Results"}
               </button>
             </div>
           </div>

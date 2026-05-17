@@ -43,7 +43,7 @@ export default function useRunCode(refetchDifficulty) {
     mutationFn: ({ code, problemId, userId, timeTaken, problemLevel, topic }) =>
       runCodeApi(code, problemId, userId, timeTaken, problemLevel, topic),
     onSuccess: (data) => {
-      toast.success("Code executed successfully");
+      // toast.success("Code executed successfully");
       console.log("Result of successfully running code: ", data);
       refetchDifficulty();
     },

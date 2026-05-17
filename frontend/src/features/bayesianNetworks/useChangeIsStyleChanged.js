@@ -29,7 +29,7 @@ export default function useChangeIsStyleChanged() {
   } = useMutation({
     mutationFn: ({ userId }) => changeIsStyleChangedApi(userId),
     onSuccess: () => {
-      toast.success("Learning Style Updated!");
+      // toast.success("Learning Style Updated!");
       queryClient.invalidateQueries(["user"]);
     },
     onError: () => {

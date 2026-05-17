@@ -38,7 +38,7 @@ export default function useColdStart() {
     mutationFn: ({ userId, challenge1Answer, challenge2Answer }) =>
       coldStartApi(userId, challenge1Answer, challenge2Answer),
     onSuccess: () => {
-      toast.success("Cold Start Challenge Completed!");
+      // toast.success("Cold Start Challenge Completed!");
       queryClient.invalidateQueries(["user"]);
       navigate("/home");
     },

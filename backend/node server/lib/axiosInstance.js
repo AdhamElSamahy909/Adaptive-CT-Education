@@ -1,7 +1,10 @@
 const axios = require("axios");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "./.env" });
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: process.env.FASTAPI_SERVER_URL,
   headers: {
     "Content-Type": "application/json",
   },

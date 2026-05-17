@@ -154,49 +154,49 @@ function ExercisesInstructor() {
       currentEx.verbalSteps.filter((_, i) => i !== index),
     );
 
-  // Handlers for visual steps
-  const handleAddVisualStep = () => {
-    updateEx("visualSteps", [
-      ...currentEx.visualSteps,
-      { text: "", shape: "oval", directedTowards: [] },
-    ]);
-  };
+  // // Handlers for visual steps
+  // const handleAddVisualStep = () => {
+  //   updateEx("visualSteps", [
+  //     ...currentEx.visualSteps,
+  //     { text: "", shape: "oval", directedTowards: [] },
+  //   ]);
+  // };
 
-  const handleUpdateVisualStep = (index, field, value) => {
-    const updated = [...currentEx.visualSteps];
-    updated[index][field] = value;
-    updateEx("visualSteps", updated);
-  };
+  // const handleUpdateVisualStep = (index, field, value) => {
+  //   const updated = [...currentEx.visualSteps];
+  //   updated[index][field] = value;
+  //   updateEx("visualSteps", updated);
+  // };
 
-  const handleRemoveVisualStep = (index) => {
-    updateEx(
-      "visualSteps",
-      currentEx.visualSteps.filter((_, i) => i !== index),
-    );
-  };
+  // const handleRemoveVisualStep = (index) => {
+  //   updateEx(
+  //     "visualSteps",
+  //     currentEx.visualSteps.filter((_, i) => i !== index),
+  //   );
+  // };
 
-  const handleAddDirectedTowards = (visualIndex) => {
-    const updated = [...currentEx.visualSteps];
-    updated[visualIndex].directedTowards.push({
-      direction: "next",
-      requiredStep: "",
-    });
-    updateEx("visualSteps", updated);
-  };
+  // const handleAddDirectedTowards = (visualIndex) => {
+  //   const updated = [...currentEx.visualSteps];
+  //   updated[visualIndex].directedTowards.push({
+  //     direction: "next",
+  //     requiredStep: "",
+  //   });
+  //   updateEx("visualSteps", updated);
+  // };
 
-  const handleUpdateDirectedTowards = (visualIndex, dtIndex, field, value) => {
-    const updated = [...currentEx.visualSteps];
-    updated[visualIndex].directedTowards[dtIndex][field] = value;
-    updateEx("visualSteps", updated);
-  };
+  // const handleUpdateDirectedTowards = (visualIndex, dtIndex, field, value) => {
+  //   const updated = [...currentEx.visualSteps];
+  //   updated[visualIndex].directedTowards[dtIndex][field] = value;
+  //   updateEx("visualSteps", updated);
+  // };
 
-  const handleRemoveDirectedTowards = (visualIndex, dtIndex) => {
-    const updated = [...currentEx.visualSteps];
-    updated[visualIndex].directedTowards = updated[
-      visualIndex
-    ].directedTowards.filter((_, i) => i !== dtIndex);
-    updateEx("visualSteps", updated);
-  };
+  // const handleRemoveDirectedTowards = (visualIndex, dtIndex) => {
+  //   const updated = [...currentEx.visualSteps];
+  //   updated[visualIndex].directedTowards = updated[
+  //     visualIndex
+  //   ].directedTowards.filter((_, i) => i !== dtIndex);
+  //   updateEx("visualSteps", updated);
+  // };
 
   if (isLoading) {
     return (
@@ -718,7 +718,7 @@ function ExercisesInstructor() {
             </section>
 
             {/* Visual Steps */}
-            <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-dark_blue">
+            {/* <section className="bg-white p-6 rounded-xl shadow-md border-t-4 border-dark_blue">
               <div className="mb-4 border-b pb-2">
                 <h2 className="text-xl font-bold text-dark_blue">
                   Visual Flowchart Nodes
@@ -885,7 +885,7 @@ function ExercisesInstructor() {
                   + Add Node
                 </button>
               </div>
-            </section>
+            </section> */}
           </>
         )}
 

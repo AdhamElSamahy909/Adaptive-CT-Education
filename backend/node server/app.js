@@ -12,12 +12,23 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "./.env" });
 
 const app = express();
 
+console.log("FASTAPI_SERVER_URL:", process.env.FASTAPI_SERVER_URL);
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://127.0.0.1:8000"],
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:8000",
+      "https://4f78806c.adaptive-ct-education.pages.dev",
+      "https://adaptive-ct-education.pages.dev",
+      process.env.FASTAPI_SERVER_URL,
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -33,6 +44,8 @@ app.use("/api", limiter);
 
 // app.use(mongoSanitize());
 // app.use(hpp());
+
+app.set("trust proxy", 1);
 
 app.use(express.json({ limit: "250kb" }));
 app.use(cookieParser());

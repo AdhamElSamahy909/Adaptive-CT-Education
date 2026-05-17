@@ -10,6 +10,7 @@ async function signupApi(
   password,
   passwordConfirm,
   role,
+  secret,
 ) {
   try {
     const { data } = await axiosInstance.post("/auth/signup", {
@@ -19,6 +20,7 @@ async function signupApi(
       password,
       passwordConfirm,
       role,
+      secret,
     });
 
     return data;
@@ -43,10 +45,19 @@ export default function useSignup() {
       password,
       passwordConfirm,
       role,
+      secret,
     }) =>
-      signupApi(firstName, lastName, email, password, passwordConfirm, role),
+      signupApi(
+        firstName,
+        lastName,
+        email,
+        password,
+        passwordConfirm,
+        role,
+        secret,
+      ),
     onSuccess: () => {
-      toast.success("Successful Signup");
+      toast.success("Account Created");
       navigate("/");
     },
     onError: (err) => toast.error(err?.message || "Signup Failed"),

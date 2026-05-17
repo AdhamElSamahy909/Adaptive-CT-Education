@@ -155,133 +155,51 @@ function ExerciseStudents() {
     setCode("");
   };
 
-  const parseFlowchart = (visualGuide) => {
-    if (!visualGuide || !Array.isArray(visualGuide)) return [];
+  const VerbalStepsDiagram = ({ steps }) => {
+    if (!steps) return null;
+    const stepsArray = Array.isArray(steps) ? steps : [steps];
 
-    let fallbackId = 1000;
-    const nodesMap = new Map();
-    const pointedTo = new Set();
+    return (
+      <div className="w-full flex-col flex items-center justify-center font-sans text-sm relative pb-8">
+        {stepsArray.map((step, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center w-full max-w-md"
+          >
+            {index > 0 && (
+              <div className="h-8 w-1 bg-medium_blue relative my-1">
+                <div className="absolute -bottom-1 -left-1.5 w-4 h-4 border-r-4 border-b-4 border-medium_blue transform rotate-45"></div>
+              </div>
+            )}
+            <div className="bg-white border-2 border-medium_blue shadow-md rounded-xl p-5 w-full text-center relative mt-2 group hover:shadow-lg transition-shadow">
+              <div className="absolute -top-4 -left-4 bg-dark_blue text-offwite w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm border-2 border-white text-base">
+                {index + 1}
+              </div>
+              <p className="text-dark_blue font-semibold text-base leading-relaxed">
+                {step}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
-    visualGuide.forEach((node) => {
-      nodesMap.set(node.text, node);
-      if (node.directedTowards) {
-        node.directedTowards.forEach((dir) => {
-          pointedTo.add(dir.requiredStep);
-        });
-      }
-    });
+  const VerbalBulletPoints = ({ steps }) => {
+    if (!steps) return null;
+    const stepsArray = Array.isArray(steps) ? steps : [steps];
 
-    // Find the start node (one that no other node points to)
-    const startNode =
-      visualGuide.find((node) => !pointedTo.has(node.text)) || visualGuide[0];
-
-    if (!startNode) return [];
-
-    const nodes = [];
-    let current = startNode;
-    const mainVisited = new Set();
-
-    const traverseBranch = (startStepText, decisionText) => {
-      const path = [];
-      let loops = false;
-      const visited = new Set();
-      const stack = [startStepText];
-
-      while (stack.length > 0) {
-        const currentText = stack.shift();
-
-        if (currentText === decisionText) {
-          loops = true;
-          continue;
-        }
-
-        if (visited.has(currentText)) continue;
-        visited.add(currentText);
-
-        path.push({
-          id: fallbackId++,
-          label: currentText,
-          type: "normal",
-        });
-
-        const currDoc = nodesMap.get(currentText);
-        if (currDoc && currDoc.directedTowards) {
-          // Push "no" branch first, so "yes" / "next" branch gets explored first (DFS left-to-right)
-          const noDir = currDoc.directedTowards.find(
-            (d) => d.direction === "no",
-          );
-          const yesDir = currDoc.directedTowards.find(
-            (d) => d.direction === "yes",
-          );
-          const nextDir = currDoc.directedTowards.find(
-            (d) => d.direction === "next",
-          );
-
-          // unshift adds to front. So if we want 'next', 'yes', 'no' order on pop:
-          // push 'no', then 'yes', then 'next' to stack front
-          if (noDir && nodesMap.has(noDir.requiredStep))
-            stack.unshift(noDir.requiredStep);
-          if (yesDir && nodesMap.has(yesDir.requiredStep))
-            stack.unshift(yesDir.requiredStep);
-          if (nextDir && nodesMap.has(nextDir.requiredStep))
-            stack.unshift(nextDir.requiredStep);
-        }
-      }
-      return { path, loops };
-    };
-
-    while (current) {
-      if (mainVisited.has(current.text)) break;
-      mainVisited.add(current.text);
-
-      if (current.shape === "diamond") {
-        const decisionNode = {
-          id: fallbackId++,
-          label: current.text,
-          type: "decision",
-          yesPath: [],
-          noPath: [],
-          yesLoops: false,
-          noLoops: false,
-        };
-
-        const yesDir = current.directedTowards?.find(
-          (d) => d.direction === "yes",
-        );
-        const noDir = current.directedTowards?.find(
-          (d) => d.direction === "no",
-        );
-
-        if (yesDir && nodesMap.has(yesDir.requiredStep)) {
-          const res = traverseBranch(yesDir.requiredStep, current.text);
-          decisionNode.yesPath = res.path;
-          decisionNode.yesLoops = res.loops;
-        }
-
-        if (noDir && nodesMap.has(noDir.requiredStep)) {
-          const res = traverseBranch(noDir.requiredStep, current.text);
-          decisionNode.noPath = res.path;
-          decisionNode.noLoops = res.loops;
-        }
-
-        nodes.push(decisionNode);
-        break; // In this component's structure, decision nodes absorb the rest of the flow into their yes/no paths
-      } else {
-        nodes.push({
-          id: fallbackId++,
-          label: current.text,
-          type: "normal",
-          next: null,
-        });
-
-        const nextDir =
-          current.directedTowards?.find((d) => d.direction === "next") ||
-          current.directedTowards?.[0];
-        const nextText = nextDir ? nextDir.requiredStep : null;
-        current = nextText ? nodesMap.get(nextText) : null;
-      }
-    }
-    return nodes;
+    return (
+      <div className="w-full font-sans pb-4">
+        <ul className="list-disc list-outside pl-6 space-y-4 text-dark_blue text-base font-semibold mt-2">
+          {stepsArray.map((step, index) => (
+            <li key={index} className="leading-relaxed">
+              {step}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   const closeStruggleModal = () => {
@@ -290,9 +208,9 @@ function ExerciseStudents() {
     document.body.style.overflow = "auto";
   };
 
-  const FlowchartDiagram = ({ visualGuide }) => {
+  const FlowchartDiagram = ({ visualGuide, topic }) => {
     if (!visualGuide) return null;
-    const nodes = parseFlowchart(visualGuide);
+    const nodes = parseFlowchart(visualGuide, topic);
 
     return (
       <div className="w-full flex-col flex items-center justify-center font-sans text-sm relative pb-24 pr-48">
@@ -371,7 +289,15 @@ function ExerciseStudents() {
                       {/* Dashed Loop back line wrap-around for No path */}
                       {node.noLoops && (
                         <>
-                          <div className="absolute border-l-2 border-t-2 border-b-2 border-dashed border-red-500 opacity-80 -z-10 rounded-l-xl" style={{ right: 'calc(50% + 2rem)', top: '-5.25rem', bottom: '1.5rem', width: '4.5rem' }}>
+                          <div
+                            className="absolute border-l-2 border-t-2 border-b-2 border-dashed border-red-500 opacity-80 -z-10 rounded-l-xl"
+                            style={{
+                              right: "calc(50% + 2rem)",
+                              top: "-5.25rem",
+                              bottom: "1.5rem",
+                              width: "4.5rem",
+                            }}
+                          >
                             {/* Arrow head pointing back to the diamond */}
                             <div className="absolute top-[-6px] right-[-2px] w-2.5 h-2.5 border-r-2 border-t-2 border-red-500 transform rotate-45"></div>
                           </div>
@@ -652,7 +578,45 @@ function ExerciseStudents() {
                             </pre>
                             <p className="mb-1">Got:</p>
                             <pre className="bg-red-100 p-2 rounded text-xs overflow-y-auto max-h-24 whitespace-pre-wrap break-all">
-                              {result.error || result.output || "No output"}
+                              {(() => {
+                                let errorText =
+                                  result.error || result.output || "No output";
+                                if (typeof errorText === "string") {
+                                  // Extract nested JSON if execution failure polluted the output
+                                  try {
+                                    const jsonMatch = errorText.match(
+                                      /\{[\s\S]*"error"[\s\S]*\}/,
+                                    );
+                                    if (jsonMatch) {
+                                      const parsed = JSON.parse(jsonMatch[0]);
+                                      if (parsed.error)
+                                        errorText = parsed.error;
+                                    }
+                                  } catch (e) {}
+
+                                  // Unescape just in case we are still looking at a raw stringified payload
+                                  if (errorText.includes("\\n")) {
+                                    errorText = errorText
+                                      .replace(/\\n/g, "\n")
+                                      .replace(/\\"/g, '"');
+                                  }
+
+                                  // Cut out boilerplate Traceback until the target file
+                                  const parts = errorText.split(
+                                    /File\s*["']?<solution>["']?,\s*/,
+                                  );
+                                  if (parts.length > 1) {
+                                    let cleanErr = parts.pop();
+                                    // Remove trailing closing braces if regex caught the end of a raw JSON
+                                    cleanErr = cleanErr.replace(
+                                      /["']?\s*\}\s*,?\s*$/,
+                                      "",
+                                    );
+                                    return cleanErr.trim();
+                                  }
+                                }
+                                return errorText;
+                              })()}
                             </pre>
                           </div>
                         ),
@@ -693,33 +657,20 @@ function ExerciseStudents() {
             </div>
 
             <div className="flex-1 overflow-y-auto min-h-0 px-8 py-4">
-              {visualScore > verbalScore ? (
-                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto">
-                  <h3 className="text-lg font-bold text-medium_blue mb-4">
-                    Flowchart Guide
-                  </h3>
-                  <div>
-                    <FlowchartDiagram
-                      visualGuide={selectedExercise?.wayToSolve?.visual}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto overflow-y-visible">
-                  <h3 className="text-lg font-bold text-medium_blue mb-4">
-                    Step-by-Step Guide
-                  </h3>
-                  <div className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-mono">
-                    {Array.isArray(selectedExercise?.wayToSolve?.verbal)
-                      ? selectedExercise.wayToSolve.verbal.map((step, index) => (
-                          <div key={index} className="mb-2">
-                            {index + 1}. {step}
-                          </div>
-                        ))
-                      : selectedExercise?.wayToSolve?.verbal}
-                  </div>
-                </div>
-              )}
+              <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto overflow-y-visible">
+                <h3 className="text-lg font-bold text-medium_blue mb-4">
+                  Step-by-Step Guide
+                </h3>
+                {visualScore > verbalScore ? (
+                  <VerbalStepsDiagram
+                    steps={selectedExercise?.wayToSolve?.verbal}
+                  />
+                ) : (
+                  <VerbalBulletPoints
+                    steps={selectedExercise?.wayToSolve?.verbal}
+                  />
+                )}
+              </div>
             </div>
 
             <div className="p-8 flex-shrink-0 border-t border-gray-200">
@@ -755,33 +706,20 @@ function ExerciseStudents() {
             </div>
 
             <div className="flex-1 overflow-y-auto min-h-0 px-8 py-4">
-              {visualScore > verbalScore ? (
-                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto overflow-y-visible">
-                  <h3 className="text-lg font-bold text-medium_blue mb-4">
-                    Flowchart Guide
-                  </h3>
-                  <div>
-                    <FlowchartDiagram
-                      visualGuide={selectedExercise?.wayToSolve?.visual}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto overflow-y-visible">
-                  <h3 className="text-lg font-bold text-medium_blue mb-4">
-                    Step-by-Step Guide
-                  </h3>
-                  <div className="whitespace-pre-wrap text-gray-700 text-sm leading-relaxed font-mono">
-                    {Array.isArray(selectedExercise?.wayToSolve?.verbal)
-                      ? selectedExercise.wayToSolve.verbal.map((step, index) => (
-                          <div key={index} className="mb-2">
-                            {index + 1}. {step}
-                          </div>
-                        ))
-                      : selectedExercise?.wayToSolve?.verbal}
-                  </div>
-                </div>
-              )}
+              <div className="bg-light_blue bg-opacity-30 p-6 rounded-lg overflow-x-auto overflow-y-visible">
+                <h3 className="text-lg font-bold text-medium_blue mb-4">
+                  Step-by-Step Guide
+                </h3>
+                {visualScore > verbalScore ? (
+                  <VerbalStepsDiagram
+                    steps={selectedExercise?.wayToSolve?.verbal}
+                  />
+                ) : (
+                  <VerbalBulletPoints
+                    steps={selectedExercise?.wayToSolve?.verbal}
+                  />
+                )}
+              </div>
             </div>
 
             <div className="p-8 flex-shrink-0 border-t border-gray-200">

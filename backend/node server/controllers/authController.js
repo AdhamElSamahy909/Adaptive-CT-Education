@@ -2,12 +2,31 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const axiosInstance = require("../lib/axiosInstance");
+dotenv = require("dotenv");
+
+dotenv.config({ path: "./.env" });
+
+const secret = process.env.SECRET;
 
 exports.signup = async (req, res, next) => {
   try {
     console.log("Req.body: ", req.body);
-    const { firstName, lastName, email, password, passwordConfirm, role } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      passwordConfirm,
+      role,
+      secret: reqSecret,
+    } = req.body;
+
+    if (
+      role === "instructor" &&
+      reqSecret?.toLowerCase() !== secret.toLowerCase()
+    ) {
+      return res.status(401).json({ message: "Invalid instructor secret" });
+    }
 
     const existingUser = await User.findOne({ email: email });
 
@@ -38,7 +57,7 @@ exports.signup = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -87,7 +106,7 @@ exports.login = async (req, res, next) => {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -143,7 +162,7 @@ exports.logout = (req, res) => {
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: true,
-    sameSite: "strict",
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
   return res.status(200).json({ message: "Logged out successfully" });

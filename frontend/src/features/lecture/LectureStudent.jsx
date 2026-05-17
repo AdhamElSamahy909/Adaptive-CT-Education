@@ -165,18 +165,20 @@ function LectureStudent() {
                 Loading Lecture Slides...
               </div>
             ) : url ? (
-              <div className="flex flex-col items-center w-full">
+              <div className="flex flex-col items-center w-full min-h-[600px]">
                 <div
-                  className={`border-2 rounded-lg shadow-lg overflow-hidden bg-offwite ${numPages ? "border-light_blue" : "border-white"}`}
+                  className={`border-2 rounded-lg shadow-lg min-h-[450px] overflow-hidden bg-offwite ${numPages ? "border-light_blue" : "border-white"}`}
                 >
                   <Document
                     file={url}
                     onLoadSuccess={onDocumentLoadSuccess}
-                    loading={<div className="" />}
+                    loading={<div className="w-[800px] bg-white" />}
                   >
                     <Page
                       pageNumber={pageNumber}
-                      loading={<div className="w-[800px] bg-white" />}
+                      loading={
+                        <div className="w-[800px] min-h-[600px] bg-white" />
+                      }
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
                       className="max-w-full"

@@ -46,7 +46,7 @@ export default function useInitializeDifficulty() {
   } = useMutation({
     mutationFn: ({ userId }) => initializeDifficultyApi(userId),
     onSuccess: () => {
-      toast.success("Difficulty Initialized Successfully!");
+      // toast.success("Difficulty Initialized Successfully!");
       queryClient.invalidateQueries(["user"]);
     },
     onError: () => {

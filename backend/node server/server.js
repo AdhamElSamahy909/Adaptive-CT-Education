@@ -8,7 +8,7 @@ const DB = process.env.MONGO_URI;
 
 mongoose.connect(DB).then(() => console.log("DB connected"));
 
-const port = 9999;
+const port = process.env.PORT || 8080;
 
 app.listen(port, () => {
   console.log(`app running on port ${port}`);

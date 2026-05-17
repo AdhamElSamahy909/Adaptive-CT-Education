@@ -10,6 +10,7 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("student");
+  const [secret, setSecret] = useState("");
   const { signup, isLoading } = useSignup();
 
   const handleSubmit = (e) => {
@@ -21,6 +22,7 @@ function Signup() {
       password,
       passwordConfirm: confirmPassword,
       role,
+      secret,
     });
   };
 
@@ -105,6 +107,25 @@ function Signup() {
                 <option value="instructor">Instructor</option>
               </select>
             </div>
+
+            {role === "instructor" && (
+              <div>
+                <label
+                  htmlFor="secret"
+                  className="block text-sm font-semibold text-dark_blue mb-2"
+                >
+                  Instructor Secret
+                </label>
+                <input
+                  id="secret"
+                  type="password"
+                  value={secret}
+                  onChange={(e) => setSecret(e.target.value)}
+                  placeholder="Enter the instructor secret"
+                  className="w-full px-4 py-3 rounded-lg border-2 border-light_blue bg-offwite focus:border-medium_blue focus:outline-none transition-colors"
+                />
+              </div>
+            )}
 
             <div>
               <label
