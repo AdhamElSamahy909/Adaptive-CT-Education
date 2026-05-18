@@ -5,8 +5,10 @@ const bayesianNetworkRoutes = require("./routes/bayesianNetworkRoutes");
 const exerciseRoutes = require("./routes/exerciseRoutes");
 const lectureRoutes = require("./routes/lectureRoutes");
 const testRoutes = require("./routes/testRoutes");
-const cors = require("cors");
+const surveyRoutes = require("./routes/surveyRoutes");
 const testResultsRoutes = require("./routes/testResultsRoutes");
+const surveyResultsRoutes = require("./routes/surveyResultsRoutes");
+const cors = require("cors");
 const axiosInstance = require("./lib/axiosInstance");
 const User = require("./models/user");
 const Exercise = require("./models/exercise");
@@ -27,6 +29,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://localhost:5174",
+      "http://localhost:5175",
       "http://127.0.0.1:8000",
       "https://4f78806c.adaptive-ct-education.pages.dev",
       "https://adaptive-ct-education.pages.dev",
@@ -61,5 +64,7 @@ app.use("/api/v1/exercises", exerciseRoutes);
 app.use("/api/v1/lectures", lectureRoutes);
 app.use("/api/v1/tests", testRoutes);
 app.use("/api/v1/test-results", testResultsRoutes);
+app.use("/api/v1/survey", surveyRoutes);
+app.use("/api/v1/survey-results", surveyResultsRoutes);
 
 module.exports = app;
