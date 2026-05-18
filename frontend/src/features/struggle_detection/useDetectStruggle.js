@@ -3,27 +3,27 @@ import axiosInstance from "../../lib/axiosInstance";
 
 async function detectStruggleApi(
   userId,
+  exerciseId,
   attemptNum,
   timeDelta,
   testProgress,
-  errorType,
-  codeLenChange,
-  codeLenPrev,
-  similarityToSolution,
-  consecutiveSameError,
+  difficulty,
 ) {
   try {
-    console.log("Detecting struggle for user: ", userId);
+    console.log("Detecting struggle for user: ", userId, " with data: ", {
+      exerciseId,
+      attemptNum,
+      timeDelta,
+      testProgress,
+      difficulty,
+    });
     const { data } = await axiosInstance.post("/exercises/detect-struggling", {
       userId,
       attemptNum,
       timeDelta,
       testProgress,
-      errorType,
-      codeLenChange,
-      codeLenPrev,
-      similarityToSolution,
-      consecutiveSameError,
+      difficulty,
+      exerciseId,
     });
 
     return data;
@@ -43,25 +43,19 @@ export default function useDetectStruggle() {
   } = useMutation({
     mutationFn: ({
       userId,
+      exerciseId,
       attemptNum,
       timeDelta,
       testProgress,
-      errorType,
-      codeLenChange,
-      codeLenPrev,
-      similarityToSolution,
-      consecutiveSameError,
+      difficulty,
     }) =>
       detectStruggleApi(
         userId,
+        exerciseId,
         attemptNum,
         timeDelta,
         testProgress,
-        errorType,
-        codeLenChange,
-        codeLenPrev,
-        similarityToSolution,
-        consecutiveSameError,
+        difficulty,
       ),
     onError: (error) => {
       console.error("Error detecting struggle:", error);

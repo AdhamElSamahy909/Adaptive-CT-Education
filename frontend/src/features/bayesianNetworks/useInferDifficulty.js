@@ -3,7 +3,7 @@ import axiosInstance from "../../lib/axiosInstance";
 
 async function inferDifficultyApi(userId, topic) {
   try {
-    console.log("Inferring difficulty level for user:", userId);
+    // console.log("Inferring difficulty level for user:", userId);
     const { data } = await axiosInstance.get(
       `/bayesian-networks/difficulty/infer/${userId}/topic/${topic}`,
     );

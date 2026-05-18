@@ -40,6 +40,7 @@ function ExerciseStudents() {
   const [struggleModalShown, setStruggleModalShown] = useState(false);
   const [showWayToSolve, setShowWayToSolve] = useState(false);
   const [attemptNum, setAttemptNum] = useState(1);
+  const [struggleDetected, setStruggleDetected] = useState(false);
   const timeDeltaRef = useRef();
 
   const isStruggling = struggleDetectionData?.struggling;
@@ -74,19 +75,19 @@ function ExerciseStudents() {
     }
   }, [predictedDifficulty, solvedProblems, isLoading, data, exercises]);
 
-  console.log(
-    "Solved problems in exercises array: ",
-    exercises.filter((ex) => solvedProblems?.includes(ex._id)),
-  );
+  // console.log(
+  //   "Solved problems in exercises array: ",
+  //   exercises.filter((ex) => solvedProblems?.includes(ex._id)),
+  // );
 
-  console.log("Selected Exercise: ", selectedExercise);
-  console.log(`User ${userId} - Solved Problems:`, solvedProblems);
-  console.log("Difficulty Scores:", {
-    easyScore,
-    mediumScore,
-    hardScore,
-    predictedDifficulty,
-  });
+  // console.log("Selected Exercise: ", selectedExercise);
+  // console.log(`User ${userId} - Solved Problems:`, solvedProblems);
+  // console.log("Difficulty Scores:", {
+  //   easyScore,
+  //   mediumScore,
+  //   hardScore,
+  //   predictedDifficulty,
+  // });
 
   useEffect(() => {
     if (selectedExercise?.starterCode) {
@@ -130,11 +131,18 @@ function ExerciseStudents() {
         easyScore,
         mediumScore,
         hardScore,
+        struggleDetected,
       },
       {
         onSuccess: (data) => {
+          // console.log("Code execution results: ", data);
+          console.log(
+            "Selected Exercise at time of execution: ",
+            selectedExercise,
+          );
           detectStruggle({
             userId,
+            exerciseId: selectedExercise?._id,
             attemptNum,
             timeDelta: (Date.now() - timeDeltaRef.current) / 1000,
             testProgress:
@@ -142,6 +150,7 @@ function ExerciseStudents() {
                 (acc, curr) => acc + (curr.passed ? 1 : 0),
                 0,
               ) / data?.results?.length,
+            difficulty: selectedExercise?.difficulty?.toLowerCase(),
           });
           setAttemptNum((prev) => prev + 1);
           timeDeltaRef.current = Date.now();
@@ -208,6 +217,7 @@ function ExerciseStudents() {
   const closeStruggleModal = () => {
     setShowStruggleModal(false);
     setStruggleModalShown(true);
+    setStruggleDetected(true);
     document.body.style.overflow = "auto";
   };
 

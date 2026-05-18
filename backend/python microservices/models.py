@@ -52,11 +52,13 @@ class StrugglingDetectionResponse(BaseModel):
 
 class StrugglingDetectionInput(BaseModel):
     user_id: str
+    exercise_id: str
     attempt_num: int
     time_delta: float
     test_progress: float
-    error_type: Optional[str] = None
-    code_len_change: Optional[int] = None
-    code_len_prev: Optional[int] = None
-    similarity_to_solution: Optional[float] = None
-    consecutive_same_error: Optional[int] = None
+    difficulty: str
+    # error_type: Optional[str] = None
+    # code_len_change: Optional[int] = None
+    # code_len_prev: Optional[int] = None
+    # similarity_to_solution: Optional[float] = None
+    # consecutive_same_error: Optional[int] = None

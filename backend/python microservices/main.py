@@ -265,52 +265,46 @@ async def update_difficulty(data: DifficultyUpdate):
 
 user_sessions: Dict[str, List[List[float]]] = {}
 
-TIME_MEAN = 60.06170434170017
-TIME_STD = 67.72113036837628
-MAX_ATTEMPTS = 15
+TIME_MEAN = 61.7803
+TIME_STD = 71.5069
+MAX_ATTEMPTS = 10
 
-ERROR_MAP = {
-    'syntax': 0,
-    'runtime': 1,
-    'logic': 2,
-    'compilation': 3
+DIFFICULTY_MAPPING = {
+    'easy': 0.0,
+    'medium': 0.5,
+    'hard': 1.0
 }
 
 @app.post("/detect-struggling", response_model=StrugglingDetectionResponse)
 async def detect_struggling(data: StrugglingDetectionInput):
     user_id = data.user_id
+    exercise_id = data.exercise_id
 
-    err_val = 0
-    if data.error_type and data.error_type.lower() in ERROR_MAP:
-        err_val = ERROR_MAP[data.error_type.lower()]
+    session_key = f"{user_id}_{exercise_id}"
 
-    code_change = data.code_len_change if data.code_len_change is not None else 0
-    sim_to_sol = data.similarity_to_solution if data.similarity_to_solution is not None else 0
-    consecutive_errs = data.consecutive_same_error if data.consecutive_same_error is not None else 0
+    diff_str = data.difficulty.lower() if data.difficulty else "medium"
+    diff_val = DIFFICULTY_MAPPING.get(diff_str, 0.5)
 
     feature_vector = [
         data.attempt_num / MAX_ATTEMPTS,
         (data.time_delta - TIME_MEAN) / TIME_STD,
-        err_val / 3.0,
         data.test_progress,
-        code_change,
-        sim_to_sol,
-        consecutive_errs / 3.0
+        diff_val
     ]
 
-    if user_id not in user_sessions:
-        user_sessions[user_id] = []
+    if session_key not in user_sessions:
+        user_sessions[session_key] = []
 
-    user_sessions[user_id].append(feature_vector)
+    user_sessions[session_key].append(feature_vector)
 
-    if len(user_sessions) > MAX_ATTEMPTS:
-        user_sessions[user_id] = user_sessions[user_id][-MAX_ATTEMPTS:]
+    if (len(user_sessions[session_key]) > MAX_ATTEMPTS):
+        user_sessions[session_key] = user_sessions[session_key][-MAX_ATTEMPTS:]
 
-    current_sequence = user_sessions[user_id]
-
+    current_sequence = user_sessions[session_key]
     seq_length = len(current_sequence)
+
     if seq_length < MAX_ATTEMPTS:
-        padding = [[0.0] * 7 for _ in range(MAX_ATTEMPTS - seq_length)]
+        padding = [[0.0] * 4 for _ in range(MAX_ATTEMPTS - seq_length)]
         padded_sequence = padding + current_sequence
     else:
         padded_sequence = current_sequence
@@ -327,3 +321,58 @@ async def detect_struggling(data: StrugglingDetectionInput):
     is_struggling = probability >= 0.5
 
     return StrugglingDetectionResponse(user_id=user_id, struggling=is_struggling)
+
+
+
+
+
+# async def detect_struggling(data: StrugglingDetectionInput):
+#     user_id = data.user_id
+
+#     err_val = 0
+#     if data.error_type and data.error_type.lower() in ERROR_MAP:
+#         err_val = ERROR_MAP[data.error_type.lower()]
+
+#     code_change = data.code_len_change if data.code_len_change is not None else 0
+#     sim_to_sol = data.similarity_to_solution if data.similarity_to_solution is not None else 0
+#     consecutive_errs = data.consecutive_same_error if data.consecutive_same_error is not None else 0
+
+#     feature_vector = [
+#         data.attempt_num / MAX_ATTEMPTS,
+#         (data.time_delta - TIME_MEAN) / TIME_STD,
+#         err_val / 3.0,
+#         data.test_progress,
+#         code_change,
+#         sim_to_sol,
+#         consecutive_errs / 3.0
+#     ]
+
+#     if user_id not in user_sessions:
+#         user_sessions[user_id] = []
+
+#     user_sessions[user_id].append(feature_vector)
+
+#     if len(user_sessions) > MAX_ATTEMPTS:
+#         user_sessions[user_id] = user_sessions[user_id][-MAX_ATTEMPTS:]
+
+#     current_sequence = user_sessions[user_id]
+
+#     seq_length = len(current_sequence)
+#     if seq_length < MAX_ATTEMPTS:
+#         padding = [[0.0] * 7 for _ in range(MAX_ATTEMPTS - seq_length)]
+#         padded_sequence = padding + current_sequence
+#     else:
+#         padded_sequence = current_sequence
+
+#     input_tensor = torch.tensor(padded_sequence, dtype=torch.float32).unsqueeze(0)
+
+#     device = next(struggling_detector_model.parameters()).device
+#     input_tensor = input_tensor.to(device)
+
+#     with torch.no_grad():
+#         logits = struggling_detector_model(input_tensor)
+#         probability = torch.sigmoid(logits).item()
+
+#     is_struggling = probability >= 0.5
+
+#     return StrugglingDetectionResponse(user_id=user_id, struggling=is_struggling)

@@ -108,6 +108,7 @@ exports.executeExercise = async (req, res, next) => {
     easyScore,
     mediumScore,
     hardScore,
+    struggleDetected,
   } = req.body;
   try {
     const problem = await Exercise.findById(problemId);
@@ -118,6 +119,7 @@ exports.executeExercise = async (req, res, next) => {
       userId,
       timeTaken,
       problemLevel,
+      struggleDetected,
     });
     console.log(`Code for problem ${problemId}: `, code);
 
@@ -174,18 +176,18 @@ exports.executeExercise = async (req, res, next) => {
           : "HardSignal";
     switch (problemLevel) {
       case "easy":
-        if (timeTaken < 3) performanceSignal = "MediumSignal";
+        if (timeTaken < 3.5) performanceSignal = "MediumSignal";
         console.log("Performance signal for easy problem: ", performanceSignal);
         break;
       case "medium":
-        if (timeTaken < 10) performanceSignal = "HardSignal";
+        if (timeTaken < 6.5) performanceSignal = "HardSignal";
         console.log(
           "Performance signal for medium problem: ",
           performanceSignal,
         );
         break;
       case "hard":
-        if (timeTaken > 15) performanceSignal = "MediumSignal";
+        if (timeTaken > 12.5) performanceSignal = "MediumSignal";
         console.log("Performance signal for hard problem: ", performanceSignal);
         break;
       default:
@@ -198,19 +200,23 @@ exports.executeExercise = async (req, res, next) => {
         $push: { problemsSolved: problemId },
       });
 
-      if (
-        (performanceSignal === "EasySignal" && easyScoreScore < 0.8) ||
-        (performanceSignal === "MediumSignal" && mediumScore < 0.8) ||
-        (performanceSignal === "HardSignal" && hardScore < 0.8)
-      ) {
-        const updateResponse = await axiosInstance.post("/update-difficulty", {
-          user_id: userId,
-          performance_signal: performanceSignal,
-          topic,
-        });
+      if (!struggleDetected)
+        if (
+          (performanceSignal === "EasySignal" && easyScore < 0.8) ||
+          (performanceSignal === "MediumSignal" && mediumScore < 0.8) ||
+          (performanceSignal === "HardSignal" && hardScore < 0.8)
+        ) {
+          const updateResponse = await axiosInstance.post(
+            "/update-difficulty",
+            {
+              user_id: userId,
+              performance_signal: performanceSignal,
+              topic,
+            },
+          );
 
-        console.log("Difficulty update response: ", updateResponse.data);
-      }
+          console.log("Difficulty update response: ", updateResponse.data);
+        }
     }
 
     res.json({
@@ -229,12 +235,21 @@ exports.executeExercise = async (req, res, next) => {
 };
 
 exports.detectStruggling = async (req, res) => {
-  const { userId, attemptNum, timeDelta, testProgress } = req.body;
+  const {
+    userId,
+    attemptNum,
+    timeDelta,
+    testProgress,
+    difficulty,
+    exerciseId,
+  } = req.body;
   console.log("Received struggling detection request for user: ", userId);
   console.log("Data to be used for struggling detection: ", {
     attemptNum,
     timeDelta,
     testProgress,
+    difficulty,
+    exerciseId,
   });
 
   try {
@@ -243,6 +258,8 @@ exports.detectStruggling = async (req, res) => {
       attempt_num: attemptNum,
       time_delta: timeDelta,
       test_progress: testProgress,
+      difficulty,
+      exercise_id: exerciseId,
     });
 
     console.log(

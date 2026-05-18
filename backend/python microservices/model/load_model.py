@@ -12,10 +12,10 @@ def load_detector_model():
 
     print(f"Using device: {device}")
 
-    loaded_model = LSTMPredictor(input_dim=7, n_hidden=51)
+    loaded_model = LSTMPredictor(input_dim=4, n_hidden=51)
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    load_path = os.path.join(base_dir, "struggling_detector.pth")
+    load_path = os.path.join(base_dir, "struggling_detector1.pth")
 
     state_dict = torch.load(load_path, map_location=device)
     loaded_model.load_state_dict(state_dict)

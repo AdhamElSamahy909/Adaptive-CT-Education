@@ -12,9 +12,10 @@ async function runCodeApi(
   easyScore,
   mediumScore,
   hardScore,
+  struggleDetected,
 ) {
   try {
-    console.log("Running code:", code);
+    // console.log("Running code:", code);
     const { data } = await axiosInstance.post("/exercises/execute", {
       code,
       problemId,
@@ -25,6 +26,7 @@ async function runCodeApi(
       easyScore,
       mediumScore,
       hardScore,
+      struggleDetected,
     });
 
     return data;
@@ -56,6 +58,7 @@ export default function useRunCode(refetchDifficulty) {
       easyScore,
       mediumScore,
       hardScore,
+      struggleDetected,
     }) =>
       runCodeApi(
         code,
@@ -67,10 +70,11 @@ export default function useRunCode(refetchDifficulty) {
         easyScore,
         mediumScore,
         hardScore,
+        struggleDetected,
       ),
     onSuccess: (data) => {
       // toast.success("Code executed successfully");
-      console.log("Result of successfully running code: ", data);
+      // console.log("Result of successfully running code: ", data);
       refetchDifficulty();
     },
     onError: (error) => {
