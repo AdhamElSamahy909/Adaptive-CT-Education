@@ -156,8 +156,8 @@ function StudentHome() {
                     Your Style Is Adapted
                   </h3>
                   <p className="text-medium_blue">
-                    We offer visual, verbal, and hands-on difficulty-adapted
-                    exercises.
+                    We offer visual, and verbal learning styles, and hands-on
+                    difficulty-adapted exercises.
                   </p>
                 </div>
               </div>
