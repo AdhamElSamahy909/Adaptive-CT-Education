@@ -29,7 +29,7 @@ function xor(a, b) {
 function LectureStudent() {
   const { userId, lastPref, refetchUser, styleChange } = useUser();
   const { visualScore, verbalScore } = useInferLearningStyle(userId);
-  const { updateLearningStyle } = useUpdateLearningStyle(refetchUser);
+  const { updateLearningStyle } = useUpdateLearningStyle(refetchUser, userId);
   const [numOfBackClicks, setNumOfBackClicks] = useState(0);
   const [numOfForwardClicks, setNumOfForwardClicks] = useState(0);
   const topic = useGetTopicName();
@@ -63,7 +63,9 @@ function LectureStudent() {
 
   const currentMode = getCurrentMode(lastPref, visualScore, verbalScore);
 
-  const handleBackClick = () => setNumOfBackClicks((prev) => prev + 1);
+  const handleBackClick = () => {
+    if (numOfForwardClicks > 0) setNumOfBackClicks((prev) => prev + 1);
+  };
 
   const handleForwardClick = () => {
     console.log("Forward Clicked. Current Forward Clicks: ");

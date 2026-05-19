@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 
 async function updateLearningStyleApi(
@@ -31,7 +31,8 @@ async function updateLearningStyleApi(
   }
 }
 
-export default function useUpdateLearningStyle(refetchUser) {
+export default function useUpdateLearningStyle(refetchUser, userId) {
+  const queryClient = useQueryClient();
   const {
     mutate: updateLearningStyle,
     data,
@@ -58,6 +59,9 @@ export default function useUpdateLearningStyle(refetchUser) {
       console.log("Refetching User Details");
       refetchUser();
       console.log("Refetched User Detail");
+      queryClient.invalidateQueries({
+        queryKey: ["learning-style", userId], // Replace this with the exact query key used in your useQuery hook
+      });
     },
     onError: (error) => {
       console.error("Error updating learning style:", error);
