@@ -10,7 +10,7 @@ async function updateLearningStyleApi(
   verbalScore,
 ) {
   try {
-    console.log("Updating learning style for user: ", userId);
+    // console.log("Updating learning style for user: ", userId);
     const { data } = await axiosInstance.post(
       `bayesian-networks/learning-style/update/${userId}`,
       {
@@ -56,9 +56,9 @@ export default function useUpdateLearningStyle(refetchUser, userId) {
         verbalScore,
       ),
     onSuccess: () => {
-      console.log("Refetching User Details");
+      // console.log("Refetching User Details");
       refetchUser();
-      console.log("Refetched User Detail");
+      // console.log("Refetched User Detail");
       queryClient.invalidateQueries({
         queryKey: ["learning-style", userId], // Replace this with the exact query key used in your useQuery hook
       });

@@ -3,8 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 
 async function verifyJWT() {
   try {
-    console.log("Fetching User Details");
+    // console.log("Fetching User Details");
     const { data } = await axiosInstance.get("/auth/verifyJWT");
+
+    // console.log("User Details: ", data);
 
     return data;
   } catch (error) {
@@ -15,6 +17,7 @@ async function verifyJWT() {
 export default function useUser() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["user"],
+    // retry: false,
     queryFn: verifyJWT,
   });
 
@@ -22,7 +25,7 @@ export default function useUser() {
     coldStartChallengeFixed: data?.coldStartChallengeCompleted,
     lastPref: data?.lastPreferredLearningStyle,
     isLoading,
-    isAuthenticated: !error,
+    isAuthenticated: !!data && !error,
     userId: data?.id,
     refetchUser: refetch,
     solvedProblems: data?.solvedProblems,

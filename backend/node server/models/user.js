@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "please provide a password"],
-      minlength: 5,
       select: false,
     },
     role: {
@@ -48,8 +47,7 @@ const userSchema = new mongoose.Schema(
     },
     lastPreferredLearningStyle: {
       type: String,
-      enum: ["Visual", "Verbal", "Unknown"],
-      default: "Unknown",
+      enum: ["Visual", "Verbal"],
     },
     styleChange: {
       isDetected: { type: Boolean, default: false },

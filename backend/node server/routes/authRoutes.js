@@ -11,5 +11,7 @@ router.get(
   authController.verifyJWT,
   authController.checkSessionStatus,
 );
+// router.post("/handoff", authController.verifyJWT, authController.handOff);
+// router.post("/redeem-ticket", authController.redeemTicket);
 
 module.exports = router;

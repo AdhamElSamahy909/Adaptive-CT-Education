@@ -25,6 +25,7 @@ exports.coldStart = async (req, res) => {
 
     await User.findByIdAndUpdate(userId, {
       coldStartChallengeCompleted: true,
+      lastPreferredLearningStyle: response.data.predicted_style,
     });
 
     res.status(200).json(response.data);
@@ -78,6 +79,11 @@ exports.updateLearningStyle = async (req, res) => {
     });
     const user_id = userId;
     let user = await User.findById(userId);
+
+    const initialLearningStyle = await axiosInstance.get(
+      `/infer-learning-style/${user_id}`,
+    );
+
     let backClicksPercentage = (numOfBackClicks / numOfForwardClicks) * 100;
     let behavior_signal;
 
@@ -106,6 +112,12 @@ exports.updateLearningStyle = async (req, res) => {
 
       const behaviorSignal =
         behavior_signal === "VisualDominant" ? "Visual" : "Verbal";
+      // let newLearningStyle;
+      // if (response.data.Visual < initialLearningStyle.data.Visual) {
+      //   newLearningStyle = "Verbal";
+      // } else if (response.data.Verbal < initialLearningStyle.data.Verbal) {
+      //   newLearningStyle = "Visual";
+      // }
 
       const isStyleChanedToBeUpdated =
         user.lastPreferredLearningStyle !== behaviorSignal;

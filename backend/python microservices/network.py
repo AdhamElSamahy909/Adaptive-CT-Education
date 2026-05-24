@@ -15,10 +15,6 @@ def _attach_cpds(model: DiscreteBayesianNetwork, cpds: list[TabularCPD]) -> Disc
     return model
 
 def _default_cpds():
-    # model = DiscreteBayesianNetwork([('LearningStyle', 'VisualScore'),
-    #                                 ('LearningStyle', 'VerbalScore'),
-    #                                 ('LearningStyle', 'BehaviorSignal')])
-    
     cpd_style = TabularCPD(
         variable="LearningStyle",
         variable_card=2,
@@ -71,9 +67,6 @@ def _default_cpds():
         }
     )
 
-    # model.add_cpds(cpd_style, cpd_visual, cpd_verbal, cpd_behavior)
-    # assert model.check_model(), "Invalid Bayesian Network"
-    # return model
     return [cpd_style, cpd_visual, cpd_verbal, cpd_behavior]
 
 def build_model() -> DiscreteBayesianNetwork:

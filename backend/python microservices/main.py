@@ -292,7 +292,9 @@ async def detect_struggling(data: StrugglingDetectionInput):
         diff_val
     ]
 
-    if session_key not in user_sessions:
+    if data.attempt_num == 1:
+        user_sessions[session_key] = []
+    elif session_key not in user_sessions:
         user_sessions[session_key] = []
 
     user_sessions[session_key].append(feature_vector)

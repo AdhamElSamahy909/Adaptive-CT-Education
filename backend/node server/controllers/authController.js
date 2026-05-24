@@ -1,12 +1,16 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const axiosInstance = require("../lib/axiosInstance");
 dotenv = require("dotenv");
 
 dotenv.config({ path: "./.env" });
 
 const secret = process.env.SECRET;
+
+// const ticketStore = new Map();
+// const TICKET_EXPIRATION_TIME = 60 * 1000; // 1 minute
 
 exports.signup = async (req, res, next) => {
   try {
@@ -55,6 +59,7 @@ exports.signup = async (req, res, next) => {
     );
 
     res.cookie("accessToken", accessToken, {
+      // domain: ".adaptivecomputationalthinkingeducation.app",
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -104,6 +109,7 @@ exports.login = async (req, res, next) => {
     );
 
     res.cookie("accessToken", accessToken, {
+      // domain: ".adaptivecomputationalthinkingeducation.app",
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -160,6 +166,7 @@ exports.checkSessionStatus = (req, res) => {
 
 exports.logout = (req, res) => {
   res.clearCookie("accessToken", {
+    // domain: ".adaptivecomputationalthinkingeducation.app",
     httpOnly: true,
     secure: true,
     sameSite: "none",
@@ -167,3 +174,59 @@ exports.logout = (req, res) => {
   });
   return res.status(200).json({ message: "Logged out successfully" });
 };
+
+// exports.handOff = (req, res) => {
+//   const ticket = crypto.randomBytes(32).toString("hex");
+
+//   ticketStore.set(ticket, {
+//     userId: req.user.id,
+//     email: req.user.email,
+//     expiresAt: Date.now() + TICKET_EXPIRATION_TIME,
+//   });
+
+//   return res.status(200).json({ ticket });
+// };
+
+// exports.redeemTicket = async (req, res) => {
+//   const { ticket } = req.body;
+
+//   if (!ticket) {
+//     return res.status(400).json({ message: "Ticket is required" });
+//   }
+
+//   const ticketData = ticketStore.get(ticket);
+
+//   if (!ticketData) {
+//     return res.status(400).json({ message: "Invalid or expired ticket" });
+//   }
+
+//   ticketStore.delete(ticket);
+
+//   if (Date.now() > ticketData.expiresAt) {
+//     return res.status(401).json({ error: "Ticket has expired" });
+//   }
+
+//   const accessToken = jwt.sign(
+//     { id: ticketData.userId, email: ticketData.email },
+//     process.env.ACCESS_TOKEN_SECRET,
+//     { expiresIn: "7d" },
+//   );
+
+//   res.cookie("accessToken", accessToken, {
+//     httpOnly: true,
+//     secure: true,
+//     sameSite: "none",
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//   });
+
+//   return res.json({ message: "Ticket redeemed successfully" });
+// };
+
+// setInterval(() => {
+//   const now = Date.now();
+//   for (const [ticket, data] of ticketStore.entries()) {
+//     if (now > data.expiresAt) {
+//       ticketStore.delete(ticket);
+//     }
+//   }
+// }, 60 * 1000);

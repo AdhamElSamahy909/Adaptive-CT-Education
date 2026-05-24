@@ -5,6 +5,6 @@ const router = express.Router();
 router
   .route("/")
   .get(surveyResultsController.getAllSurveyResults)
-  .post(surveyResultsController.createSurveyResult);
+  .post(surveyResultsController.submitSurveyResults);
 
 module.exports = router;
