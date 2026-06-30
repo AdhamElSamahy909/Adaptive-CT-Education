@@ -73,7 +73,7 @@ function Login() {
             </button>
           </form>
 
-          {/* <div className="my-8 flex items-center gap-4">
+          <div className="my-8 flex items-center gap-4">
             <div className="flex-1 h-px bg-light_blue"></div>
             <span className="text-gray-500 text-sm">New user?</span>
             <div className="flex-1 h-px bg-light_blue"></div>
@@ -84,7 +84,7 @@ function Login() {
             className="block w-full text-center py-3 rounded-lg border-2 border-medium_blue text-medium_blue font-semibold hover:bg-light_blue transition-colors"
           >
             Create Account
-          </Link> */}
+          </Link>
         </div>
       </div>
     </div>

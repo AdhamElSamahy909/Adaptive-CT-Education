@@ -9,8 +9,6 @@ async function signupApi(
   email,
   password,
   passwordConfirm,
-  role,
-  secret,
 ) {
   try {
     const { data } = await axiosInstance.post("/auth/signup", {
@@ -19,8 +17,6 @@ async function signupApi(
       email,
       password,
       passwordConfirm,
-      role,
-      secret,
     });
 
     return data;
@@ -38,24 +34,8 @@ export default function useSignup() {
     isPending: isLoading,
     error,
   } = useMutation({
-    mutationFn: ({
-      firstName,
-      lastName,
-      email,
-      password,
-      passwordConfirm,
-      role,
-      secret,
-    }) =>
-      signupApi(
-        firstName,
-        lastName,
-        email,
-        password,
-        passwordConfirm,
-        role,
-        secret,
-      ),
+    mutationFn: ({ firstName, lastName, email, password, passwordConfirm }) =>
+      signupApi(firstName, lastName, email, password, passwordConfirm),
     onSuccess: () => {
       toast.success("Account Created");
       navigate("/");

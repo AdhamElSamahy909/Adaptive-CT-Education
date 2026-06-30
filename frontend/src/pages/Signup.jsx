@@ -9,8 +9,6 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("student");
-  const [secret, setSecret] = useState("");
   const { signup, isLoading } = useSignup();
 
   const handleSubmit = (e) => {
@@ -21,8 +19,6 @@ function Signup() {
       email,
       password,
       passwordConfirm: confirmPassword,
-      role,
-      secret,
     });
   };
 
@@ -89,43 +85,6 @@ function Signup() {
                 className="w-full px-4 py-3 rounded-lg border-2 border-light_blue bg-offwite focus:border-medium_blue focus:outline-none transition-colors"
               />
             </div>
-
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-semibold text-dark_blue mb-2"
-              >
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-light_blue bg-offwite focus:border-medium_blue focus:outline-none transition-colors cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%2305668d%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3e%3cpolyline points=%226 9 12 15 18 9%3e%3c/polyline%3e%3c/svg%3e')] bg-no-repeat bg-right-3 bg-center"
-              >
-                <option value="student">Student</option>
-                <option value="instructor">Instructor</option>
-              </select>
-            </div>
-
-            {role === "instructor" && (
-              <div>
-                <label
-                  htmlFor="secret"
-                  className="block text-sm font-semibold text-dark_blue mb-2"
-                >
-                  Instructor Secret
-                </label>
-                <input
-                  id="secret"
-                  type="password"
-                  value={secret}
-                  onChange={(e) => setSecret(e.target.value)}
-                  placeholder="Enter the instructor secret"
-                  className="w-full px-4 py-3 rounded-lg border-2 border-light_blue bg-offwite focus:border-medium_blue focus:outline-none transition-colors"
-                />
-              </div>
-            )}
 
             <div>
               <label
