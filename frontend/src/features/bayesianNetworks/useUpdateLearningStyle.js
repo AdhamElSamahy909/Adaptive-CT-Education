@@ -9,26 +9,26 @@ async function updateLearningStyleApi(
   visualScore,
   verbalScore,
 ) {
-  try {
-    // console.log("Updating learning style for user: ", userId);
-    const { data } = await axiosInstance.post(
-      `bayesian-networks/learning-style/update/${userId}`,
-      {
-        userId,
-        numOfBackClicks,
-        numOfForwardClicks,
-        currentMode,
-        visualScore,
-        verbalScore,
-      },
-    );
+  // try {
+  // console.log("Updating learning style for user: ", userId);
+  const { data } = await axiosInstance.post(
+    `bayesian-networks/learning-style/update/${userId}`,
+    {
+      userId,
+      numOfBackClicks,
+      numOfForwardClicks,
+      currentMode,
+      visualScore,
+      verbalScore,
+    },
+  );
 
-    return data;
-  } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || "Failed to update learning style",
-    );
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(
+  //     error?.response?.data?.message || "Failed to update learning style",
+  //   );
+  // }
 }
 
 export default function useUpdateLearningStyle(refetchUser, userId) {
@@ -63,9 +63,9 @@ export default function useUpdateLearningStyle(refetchUser, userId) {
         queryKey: ["learning-style", userId], // Replace this with the exact query key used in your useQuery hook
       });
     },
-    onError: (error) => {
-      console.error("Error updating learning style:", error);
-    },
+    // onError: (error) => {
+    //   console.error("Error updating learning style:", error);
+    // },
   });
 
   return {

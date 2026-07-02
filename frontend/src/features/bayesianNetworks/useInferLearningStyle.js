@@ -2,18 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 
 async function inferLearningStyleApi(userId) {
-  try {
-    // console.log("Inferring learning style for user:", userId);
-    const { data } = await axiosInstance.get(
-      `bayesian-networks/learning-style/infer/${userId}`,
-    );
+  // try {
+  // console.log("Inferring learning style for user:", userId);
+  const { data } = await axiosInstance.get(
+    `bayesian-networks/learning-style/infer/${userId}`,
+  );
 
-    return data;
-  } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || "Failed to infer learning style",
-    );
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(
+  //     error?.response?.data?.message || "Failed to infer learning style",
+  //   );
+  // }
 }
 
 export default function useInferLearningStyle(userId) {

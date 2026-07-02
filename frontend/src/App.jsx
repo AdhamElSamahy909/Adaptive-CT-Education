@@ -11,14 +11,15 @@ import ProtectedRoute from "./ui/ProtectedRoute";
 import AppLayout from "./ui/AppLayout";
 import LecturePage from "./pages/LecturePage";
 import ExercisePage from "./pages/ExercisePage";
+import { queryClient } from "./lib/queryClient";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 0,
-    },
-  },
-});
+// const queryClient = new QueryClient({
+//   defaultOptions: {
+//     queries: {
+//       staleTime: 0,
+//     },
+//   },
+// });
 
 function App() {
   return (

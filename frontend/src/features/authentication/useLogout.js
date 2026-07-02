@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 async function logoutApi() {
-  try {
-    const { data } = await axiosInstance.post("/auth/logout");
+  // try {
+  const { data } = await axiosInstance.post("/auth/logout");
 
-    return data;
-  } catch (error) {
-    throw new Error(error?.response?.data?.message || "Logout failed");
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(error?.response?.data?.message || "Logout failed");
+  // }
 }
 
 export default function useLogout() {
@@ -26,9 +26,9 @@ export default function useLogout() {
       toast.success("Logged out successfully");
       navigate("/login");
     },
-    onError: () => {
-      toast.error("Logout failed");
-    },
+    // onError: () => {
+    //   toast.error("Logout failed");
+    // },
   });
 
   return { logout, isLoading, error };

@@ -10,20 +10,21 @@ async function signupApi(
   password,
   passwordConfirm,
 ) {
-  try {
-    const { data } = await axiosInstance.post("/auth/signup", {
-      firstName,
-      lastName,
-      email,
-      password,
-      passwordConfirm,
-    });
+  // try {
+  const { data } = await axiosInstance.post("/auth/signup", {
+    firstName,
+    lastName,
+    email,
+    password,
+    passwordConfirm,
+  });
 
-    return data;
-  } catch (error) {
-    console.log("Signup error:", error);
-    throw new Error(error?.response?.data?.message || "Signup failed");
-  }
+  return data;
+  // }
+  // catch (error) {
+  //   console.log("Signup error:", error);
+  //   throw new Error(error?.response?.data?.message || "Signup failed");
+  // }
 }
 
 export default function useSignup() {
@@ -40,7 +41,7 @@ export default function useSignup() {
       toast.success("Account Created");
       navigate("/");
     },
-    onError: (err) => toast.error(err?.message || "Signup Failed"),
+    // onError: (err) => toast.error(err?.message || "Signup Failed"),
   });
 
   return { signup, isLoading, error };

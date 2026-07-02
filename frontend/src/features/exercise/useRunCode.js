@@ -14,29 +14,29 @@ async function runCodeApi(
   hardScore,
   struggleDetected,
 ) {
-  try {
-    // console.log("Running code:", code);
-    const { data } = await axiosInstance.post("/exercises/execute", {
-      code,
-      problemId,
-      userId,
-      timeTaken,
-      problemLevel,
-      topic,
-      easyScore,
-      mediumScore,
-      hardScore,
-      struggleDetected,
-    });
+  // try {
+  // console.log("Running code:", code);
+  const { data } = await axiosInstance.post("/exercises/execute", {
+    code,
+    problemId,
+    userId,
+    timeTaken,
+    problemLevel,
+    topic,
+    easyScore,
+    mediumScore,
+    hardScore,
+    struggleDetected,
+  });
 
-    return data;
-  } catch (error) {
-    throw new Error(
-      error?.response?.data?.error ||
-        error?.response?.data?.message ||
-        "Failed to execute code",
-    );
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(
+  //     error?.response?.data?.error ||
+  //       error?.response?.data?.message ||
+  //       "Failed to execute code",
+  //   );
+  // }
 }
 
 export default function useRunCode(refetchDifficulty) {
@@ -77,9 +77,9 @@ export default function useRunCode(refetchDifficulty) {
       // console.log("Result of successfully running code: ", data);
       refetchDifficulty();
     },
-    onError: (error) => {
-      toast.error(error.message || "Code execution failed");
-    },
+    // onError: (error) => {
+    //   toast.error(error.message || "Code execution failed");
+    // },
   });
 
   return { runCode, isLoading, error, data, status, reset };

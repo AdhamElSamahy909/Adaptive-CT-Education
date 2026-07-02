@@ -2,17 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../../lib/axiosInstance";
 
 async function getLectureApi(type, topic) {
-  try {
-    const { data } = await axiosInstance.get("/lectures", {
-      params: { type, topic },
-    });
+  // try {
+  const { data } = await axiosInstance.get("/lectures", {
+    params: { type, topic },
+  });
 
-    return data;
-  } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || "Failed to fetch lecture",
-    );
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(
+  //     error?.response?.data?.message || "Failed to fetch lecture",
+  //   );
+  // }
 }
 
 export default function useGetLecture(type, topic) {

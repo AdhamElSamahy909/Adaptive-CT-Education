@@ -4,27 +4,27 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 async function coldStartApi(userId, challenge1Answer, challenge2Answer) {
-  try {
-    console.log("Submitting cold start challenge results:", {
+  // try {
+  console.log("Submitting cold start challenge results:", {
+    userId,
+    challenge1Answer,
+    challenge2Answer,
+  });
+  const { data } = await axiosInstance.post(
+    "bayesian-networks/learning-style/cold-start",
+    {
       userId,
       challenge1Answer,
       challenge2Answer,
-    });
-    const { data } = await axiosInstance.post(
-      "bayesian-networks/learning-style/cold-start",
-      {
-        userId,
-        challenge1Answer,
-        challenge2Answer,
-      },
-    );
+    },
+  );
 
-    return data;
-  } catch (error) {
-    throw new Error(
-      error?.response?.data?.message || "Cold Start Challenge Failed",
-    );
-  }
+  return data;
+  // } catch (error) {
+  //   throw new Error(
+  //     error?.response?.data?.message || "Cold Start Challenge Failed",
+  //   );
+  // }
 }
 
 export default function useColdStart() {
@@ -42,9 +42,9 @@ export default function useColdStart() {
       queryClient.invalidateQueries(["user"]);
       navigate("/home");
     },
-    onError: () => {
-      toast.error("Cold Start Challenge Failed");
-    },
+    // onError: () => {
+    //   toast.error("Cold Start Challenge Failed");
+    // },
   });
 
   return { submitColdStart, isLoading, error };
