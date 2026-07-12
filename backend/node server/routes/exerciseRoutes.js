@@ -41,6 +41,11 @@ router.patch("/:id", exerciseController.updateExercise);
 router.get("/topic/:topicName", exerciseController.getExercisesByTopic);
 router.post("/execute", exerciseController.executeExercise);
 router.post("/detect-struggling", exerciseController.detectStruggling);
+
+router.post(
+  "/adjust-test-cases-inputs",
+  exerciseController.adjustTestCasesInputs,
+);
 // router.get("/10-random", exerciseController.get10RandomExercises);
 
 module.exports = router;

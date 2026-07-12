@@ -61,8 +61,10 @@ function Login() {
             </div>
 
             <button
+              role="button"
               type="submit"
               disabled={isLoading}
+              name="login"
               className={`w-full font-semibold py-3 rounded-lg transition-all ${
                 isLoading
                   ? "bg-gray-400 text-gray-600 cursor-not-allowed"

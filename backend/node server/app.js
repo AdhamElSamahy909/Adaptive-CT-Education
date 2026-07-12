@@ -17,6 +17,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
 const dotenv = require("dotenv");
+const BlockedRecord = require("./models/blocked");
 
 dotenv.config({ path: "./.env" });
 
@@ -47,7 +48,7 @@ app.use(
 );
 
 const limiter = rateLimit({
-  max: 1000,
+  max: 100,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP, please try again in an hour!",
 });
@@ -59,7 +60,12 @@ app.use("/api", limiter);
 app.set("trust proxy", 1);
 
 app.use(express.json({ limit: "250kb" }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use("/api/v1/health", (req, res) => {
+  return res.status(200).json({ status: "ok" });
+});
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/bayesian-networks", bayesianNetworkRoutes);

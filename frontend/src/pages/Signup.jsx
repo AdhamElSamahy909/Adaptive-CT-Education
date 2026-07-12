@@ -121,6 +121,7 @@ function Signup() {
             </div>
 
             <button
+              role="button"
               type="submit"
               disabled={isLoading}
               className={`w-full font-semibold py-3 rounded-lg transition-all mt-6 ${

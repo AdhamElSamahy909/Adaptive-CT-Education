@@ -513,6 +513,7 @@ function ExerciseStudents() {
 
               <div className="flex gap-4 p-4 bg-gray-50 border-t border-gray-200">
                 <button
+                  role="button"
                   onClick={handleRunCode}
                   disabled={isLoading}
                   className="flex-1 px-6 py-3 bg-medium_blue text-offwite font-bold rounded-lg hover:bg-dark_blue transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"

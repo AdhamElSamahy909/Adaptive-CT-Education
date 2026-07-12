@@ -26,7 +26,7 @@ DIFFICULTY_MAPPING = {
 
 def get_difficulty():
     return np.random.choice(['easy', 'medium', 'hard'], p=DIFFICULTY_PROBS)
-
+ 
 def generate_attempt(difficulty, attempt_idx, prev_progress):
     if prev_progress is None:
         progress = np.random.uniform(0, 0.3)

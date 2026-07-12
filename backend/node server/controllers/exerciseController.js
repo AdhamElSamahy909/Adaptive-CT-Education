@@ -310,3 +310,162 @@ exports.get10RandomExercises = async (req, res) => {
     });
   }
 };
+
+// exports.adjustTestCasesInputs = async (req, res) => {
+//   try {
+//     const query = {
+//       testCases: {
+//         $elemMatch: {
+//           input: { $not: /=/ },
+//         },
+//       },
+//     };
+
+//     // 3. Find all matching documents using the Exercise model
+//     const documents = await Exercise.find(query);
+
+//     console.log(`Found ${documents.length} documents requiring updates.`);
+
+//     for (const doc of documents) {
+//       let isModified = false;
+
+//       // Map through test cases and update the poorly formatted ones
+//       const updatedTestCases = doc.testCases.map((testCase) => {
+//         // If the input doesn't contain '=', format it
+//         if (testCase.input && !testCase.input.includes("=")) {
+//           // Split by comma and clean up whitespace
+//           const values = testCase.input.split(",").map((val) => val.trim());
+
+//           // Reconstruct into "param1 = X, param2 = Y, param3 = Z"
+//           const formattedInput = values
+//             .map((val, index) => `param${index + 1} = ${val}`)
+//             .join(", ");
+
+//           isModified = true;
+//           return { ...testCase, input: formattedInput };
+//         }
+
+//         // Return unchanged if it's already well-formatted
+//         return testCase;
+//       });
+
+//       // 3. Save the changes back to the database for this specific document
+//       if (isModified) {
+//         await Exercise.updateOne(
+//           { _id: doc._id },
+//           { $set: { testCases: updatedTestCases } },
+//         );
+//         console.log(`Updated document ID: ${doc._id}`);
+//       }
+//     }
+
+//     console.log("All applicable records have been updated successfully!");
+
+//     res.json({ documents });
+//   } catch (error) {
+//     console.error("An error occurred during the update process:", error);
+//     res
+//       .status(500)
+//       .json({ message: "An error occurred while updating test cases" });
+//   }
+// };
+function extractParamNames(starterCode) {
+  if (!starterCode) return [];
+
+  // Find everything between the first '(' and ')'
+  const matches = starterCode.match(/\(([^)]+)\)/);
+  if (!matches || !matches[1]) return [];
+
+  // Split by comma and extract only the variable name before any colon or equals sign
+  return matches[1]
+    .split(",")
+    .map((param) => {
+      // Split by ':' (type hints) or '=' (default values) and take the first piece
+      const cleanName = param.split(/[:=]/)[0].trim();
+      return cleanName;
+    })
+    .filter(Boolean); // Filter out any empty strings
+}
+
+exports.adjustTestCasesInputs = async (req, res) => {
+  try {
+    const query = {
+      testCases: {
+        $elemMatch: {
+          input: { $not: /=/ },
+        },
+      },
+    };
+
+    // Use .lean() to work with plain JavaScript objects and modify safely via the spread operator
+    const documents = await Exercise.find(query).lean();
+
+    console.log(`Found ${documents.length} documents requiring updates.`);
+    let totalUpdated = 0;
+
+    for (const doc of documents) {
+      // 1. Extract the unique parameters for this specific exercise
+      const paramNames = extractParamNames(doc.starterCode);
+
+      // Edge case: If no parameter names could be parsed, log a warning and fallback or skip
+      if (paramNames.length === 0) {
+        console.warn(
+          `Could not extract parameters for document ID: ${doc._id}. Skipping update.`,
+        );
+        continue;
+      }
+
+      let isModified = false;
+
+      // 2. Map through test cases and map raw values to extracted parameter names
+      const updatedTestCases = doc.testCases.map((testCase) => {
+        if (testCase.input && !testCase.input.includes("=")) {
+          // Split values by comma and clean up whitespace
+          const values = testCase.input.split(",").map((val) => val.trim());
+
+          // Reconstruct into "paramName1 = X, paramName2 = Y..."
+          const formattedInput = values
+            .map((val, index) => {
+              // Fallback to 'param' + index if the starterCode had fewer parameters than the inputs provided
+              const paramName = paramNames[index] || `param${index + 1}`;
+              return `${paramName} = ${val}`;
+            })
+            .join(", ");
+
+          isModified = true;
+          return { ...testCase, input: formattedInput };
+        }
+
+        return testCase;
+      });
+
+      // 3. Save the changes back to MongoDB
+      if (isModified) {
+        await Exercise.updateOne(
+          { _id: doc._id },
+          { $set: { testCases: updatedTestCases } },
+        );
+        totalUpdated++;
+        console.log(
+          `Updated document ID: ${doc._id} using params: ${paramNames.join(", ")}`,
+        );
+      }
+    }
+
+    console.log(`Successfully completed batch operation.`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully updated ${totalUpdated} exercises with dynamic parameter names.`,
+      matchedCount: documents.length,
+    });
+  } catch (error) {
+    console.error("An error occurred during the update process:", error);
+    return res
+      .status(500)
+      .json({
+        message: "An error occurred while updating test cases",
+        error: error.message,
+      });
+  }
+};

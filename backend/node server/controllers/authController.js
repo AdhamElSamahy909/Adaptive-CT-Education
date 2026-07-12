@@ -9,28 +9,10 @@ dotenv.config({ path: "./.env" });
 
 const secret = process.env.SECRET;
 
-// const ticketStore = new Map();
-// const TICKET_EXPIRATION_TIME = 60 * 1000; // 1 minute
-
 exports.signup = async (req, res, next) => {
   try {
     console.log("Req.body: ", req.body);
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      passwordConfirm,
-      role,
-      secret: reqSecret,
-    } = req.body;
-
-    if (
-      role === "instructor" &&
-      reqSecret?.toLowerCase() !== secret.toLowerCase()
-    ) {
-      return res.status(401).json({ message: "Invalid instructor secret" });
-    }
+    const { firstName, lastName, email, password, passwordConfirm } = req.body;
 
     const existingUser = await User.findOne({ email: email });
 
@@ -44,8 +26,21 @@ exports.signup = async (req, res, next) => {
       email: email,
       password: password,
       passwordConfirm: passwordConfirm,
-      role: role,
+      role: "student",
     });
+
+    // const verificationToken = jwt.sign(
+    //   { userId: user.id },
+    //   process.env.JWT_VERIFICATION_SECRET,
+    //   { expiresIn: "1d" },
+    // );
+
+    // console.log(
+    //   "Verification Token sent for email verification: ",
+    //   verificationToken,
+    // );
+
+    // await sendVerificationEmail(user, verificationToken);
 
     const accessToken = jwt.sign(
       {
@@ -59,7 +54,7 @@ exports.signup = async (req, res, next) => {
     );
 
     res.cookie("accessToken", accessToken, {
-      // domain: ".adaptivecomputationalthinkingeducation.app",
+      domain: ".adaptivecomputationalthinkingeducation.app",
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -109,7 +104,7 @@ exports.login = async (req, res, next) => {
     );
 
     res.cookie("accessToken", accessToken, {
-      // domain: ".adaptivecomputationalthinkingeducation.app",
+      domain: ".adaptivecomputationalthinkingeducation.app",
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -166,7 +161,7 @@ exports.checkSessionStatus = (req, res) => {
 
 exports.logout = (req, res) => {
   res.clearCookie("accessToken", {
-    // domain: ".adaptivecomputationalthinkingeducation.app",
+    domain: ".adaptivecomputationalthinkingeducation.app",
     httpOnly: true,
     secure: true,
     sameSite: "none",
